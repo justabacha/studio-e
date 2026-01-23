@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phesty's Studio | Master Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Damion&family=Great+Vibes&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --glass: rgba(255, 255, 255, 0.15); --border: rgba(255, 255, 255, 0.2); }
+        body { 
+            margin: 0; padding: 15px; font-family: 'Segoe UI', sans-serif; color: white; 
+            min-height: 100vh; background-size: cover; background-position: center; 
+            background-attachment: fixed; display: flex; flex-direction: column; 
+            align-items: center; transition: background 0.8s ease; background-color: #000;
+        }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: -1; }
+        .container { width: 100%; max-width: 480px; z-index: 1; }
+
+        /* HEADER */
+        .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; width: 100%; }
+        #clock { font-family: 'Great Vibes', cursive; font-size: 4.8rem; line-height: 0.8; text-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+        #date-header { font-family: 'Great Vibes', cursive; font-size: 1.8rem; margin-top: 5px; opacity: 0.9; }
+
+        /* MUSIC SECTION */
+        .music-section { background: var(--glass); backdrop-filter: blur(15px); padding: 12px; border-radius: 25px; border: 1px solid var(--border); width: 130px; text-align: center; cursor: pointer; }
+        .track-info { font-weight: bold; font-size: 0.75rem; line-height: 1.2; margin-bottom: 5px; }
+        .beats { display: flex; gap: 3px; justify-content: center; height: 10px; align-items: flex-end; }
+        .bar { width: 3px; height: 4px; background: rgba(255,255,255,0.4); border-radius: 2px; }
+        .playing .bar { background: #1DB954; animation: pulse 0.7s infinite alternate; }
+        @keyframes pulse { from { transform: scaleY(1); } to { transform: scaleY(2.5); } }
+
+        /* TILES */
+        .top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .tile { background: var(--glass); backdrop-filter: blur(20px); border-radius: 30px; border: 1px solid var(--border); overflow: hidden; position: relative; }
+        .weather-tile { aspect-ratio: 1/1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 10px; }
+        #weather-vibe { font-size: 0.75rem; margin-top: 10px; font-weight: bold; color: #FFD700; padding: 0 5px; }
+        .city-name { font-family: 'Damion', cursive; font-size: 2.2rem; margin: 0; }
+        
+        .stat-circle { width: 55px; height: 55px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid rgba(255,255,255,0.2); font-size: 0.9rem; }
+
+        .portrait-tile { aspect-ratio: 1/1; background-size: cover; background-position: center; }
+
+        .quote-tile { padding: 25px; min-height: 200px; display: flex; flex-direction: column; justify-content: space-between; background-size: cover !important; margin-bottom: 15px; }
+        .quote-tile::after { content: ""; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.45); z-index: 1; border-radius: 30px; }
+        .quote-content { position: relative; z-index: 2; }
+        #q-date { font-family: 'Dancing Script', cursive; font-size: 1.6rem; margin-bottom: 25px; display: block; }
+        .quote-text-row { display: flex; padding-left: 20px; font-size: 1.25rem; font-weight: 500; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); line-height: 1.4; }
+
+        /* MAGIC AI TILE */
+        .magic-tile { padding: 20px; text-align: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); margin-top: 5px; }
+        .magic-input { width: 85%; padding: 12px; border-radius: 15px; border: none; background: rgba(255,255,255,0.1); color: white; text-align: center; outline: none; margin-bottom: 10px; font-size: 1rem; }
+        #ai-status { font-size: 0.85rem; color: #1DB954; font-weight: bold; min-height: 20px; margin-top: 8px; padding: 0 10px; }
+        .magic-btn { background: #fff; color: #000; border: none; padding: 10px 25px; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .magic-btn:hover { transform: scale(1.05); background: #1DB954; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-row">
+        <div>
+            <div id="clock">00:00</div>
+            <div id="date-header">Loading...</div>
+        </div>
+        <div class="music-section" onclick="toggleMusic()">
+            <div class="track-info">Juice WRLD<br>Studio Vibe</div>
+            <div class="beats"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+            <audio id="audio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3" loop></audio>
+        </div>
+    </div>
+
+    <div class="top-row">
+        <div class="tile weather-tile">
+            <p class="city-name">Eldoret 🇰🇪</p>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <div class="stat-circle">🌡️ <span id="temp">--°C</span></div>
+                <div class="stat-circle">💧 <span id="hum">--%</span></div>
+            </div>
+            <div id="weather-vibe">Checking the vibe...</div>
+        </div>
+        <div class="tile portrait-tile" id="portrait-img"></div>
+    </div>
+
+    <div class="tile quote-tile" id="quote-card">
+        <div class="quote-content">
+            <span id="q-date">Today</span>
+            <div class="quote-text-row">
+                <span id="q-emoji" style="margin-right:12px;">✨</span>
+                <span id="q-text">Vibes loading...</span>
+            </div>
+        </div>
+        <div style="text-align:right; z-index:2; position:relative; font-weight:bold; font-family:serif;">⏳ Phesty</div>
+    </div>
+
+    <div class="tile magic-tile">
+        <span id="magic-title" style="display:block; margin-bottom:12px; font-weight:bold; font-size:1.1rem;">Do u wanna know something? 😏</span>
+        <input type="text" id="magic-input" class="magic-input" placeholder="Ask Phesty AI...">
+        <div id="ai-status">Ready to vibe.</div>
+        <button id="magic-btn" class="magic-btn" onclick="handleMagic()">Ask</button>
+    </div>
+</div>
+
+<script>
+    const API_KEY = "AIzaSyBYxsDEHcEHwm0j2Z_LF8bGkf2yu6IZ-BQ";
+    
+    // IMAGE LISTS
+    const backgrounds = ["https://i.postimg.cc/JGsdX7Xt/1000481158.jpg", "https://i.postimg.cc/BtnH4MFy/IMG-20250406-150134-376.jpg", "https://i.postimg.cc/JtYJnZ3d/IMG-20250508-130946-260.jpg", "https://i.postimg.cc/Yh4Fm0b4/IMG-20250508-132241-849.jpg", "https://i.postimg.cc/kBVStGfK/IMG-20250509-132838-632.jpg", "https://i.postimg.cc/MXpVqdBC/IMG-20250509-132907-265.jpg", "https://i.postimg.cc/V5ZM6n9T/IMG-20250512-134741-670.jpg", "https://i.postimg.cc/Wqzk81VS/IMG-20250512-134749-669.jpg", "https://i.postimg.cc/SYRMdx4g/IMG-20250512-150754-489.jpg", "https://i.postimg.cc/F1H3NDSx/IMG-20250512-150817-455.jpg", "https://i.postimg.cc/FdDS0JMP/IMG-20250512-150837-816.jpg", "https://i.postimg.cc/Lh8L2NPP/IMG-20250512-164716-997.jpg", "https://i.postimg.cc/9w07bQVW/IMG-20250512-230127-265.jpg", "https://i.postimg.cc/K48BxJTs/IMG-20250514-085431-587.jpg", "https://i.postimg.cc/5jKv0Lqt/IMG-20250514-085449-167.jpg", "https://i.postimg.cc/5QyCg21y/IMG-20250514-085457-920.jpg", "https://i.postimg.cc/0Kjwnyxv/IMG-20250514-113004-812.jpg", "https://i.postimg.cc/DmpsZLdV/IMG-20250514-113029-203.jpg", "https://i.postimg.cc/bsGn2r3b/IMG-20250514-113037-963.jpg", "https://i.postimg.cc/V0vCgkw2/IMG-20250514-113046-487.jpg", "https://i.postimg.cc/4nxVsBtC/IMG-20250514-231007-068.jpg", "https://i.postimg.cc/JH0kxzm7/IMG-20250515-185904-877.jpg", "https://i.postimg.cc/bdwkp3nt/IMG-20250516-204755-207.jpg", "https://i.postimg.cc/143wsJ61/IMG-20250516-204813-696.jpg", "https://i.postimg.cc/D8WGb0Bf/IMG-20250516-204816-036.jpg", "https://i.postimg.cc/hfJm7vp1/IMG-20250516-204827-799.jpg", "https://i.postimg.cc/1VXqB3PP/IMG-20250516-211520-422.jpg", "https://i.postimg.cc/rRsrjwcL/IMG-20250517-025228-630.jpg", "https://i.postimg.cc/c6Lw0X3k/IMG-20250517-025244-570.jpg", "https://i.postimg.cc/hhtTcpmp/IMG-20250517-150343-574.jpg", "https://i.postimg.cc/qgDnRycF/IMG-20250517-150412-479.jpg", "https://i.postimg.cc/ctCnhLW5/IMG-20250517-181821-042.jpg", "https://i.postimg.cc/fkqXLmjM/IMG-20250518-233931-873.jpg", "https://i.postimg.cc/y3xZj8BH/IMG-20250519-002048-519.jpg", "https://i.postimg.cc/N5yXrFp5/IMG-20250519-181534-964.jpg", "https://i.postimg.cc/dDNd1rmY/IMG-20250520-224137-084.jpg", "https://i.postimg.cc/XXYd4QFb/IMG-20250522-015401-406.jpg", "https://i.postimg.cc/fSy9CRZT/IMG-20250524-175922-403.jpg", "https://i.postimg.cc/nMhBp0mG/IMG-20250527-144224-313.jpg", "https://i.postimg.cc/pyc8TzQ6/IMG-20250527-145207-040.jpg", "https://i.postimg.cc/CdrD1kHq/IMG-20250527-145216-476.jpg", "https://i.postimg.cc/9w07bQ2v/IMG-20250528-192417-652.jpg", "https://i.postimg.cc/GTtyKmRV/IMG-20250624-190509-198.jpg", "https://i.postimg.cc/YjCYMbF6/IMG-20250707-175550-865.jpg", "https://i.postimg.cc/WtYr3g6q/IMG-20250707-175630-022.jpg", "https://i.postimg.cc/bsGn2r3w/IMG-20250709-014509-559.jpg", "https://i.postimg.cc/jCSPtZfX/IMG-20250723-145118-427.jpg", "https://i.postimg.cc/rKd4tsQm/IMG-20251117-171325-519.jpg", "https://i.postimg.cc/9w07bQ2g/IMG-20251125-235854-063.jpg", "https://i.postimg.cc/Z0s3RpFz/IMG-20251209-235255-046.jpg", "https://i.postimg.cc/Th3gfCbg/IMG-20251209-235338-019.jpg", "https://i.postimg.cc/gXgwxXQP/20250217-164714-3.jpg", "https://i.postimg.cc/ZBw9WBg7/20250303-180654.jpg", "https://i.postimg.cc/fVvMW41g/20251127-154101.jpg", "https://i.postimg.cc/RJqWKCxS/20251224-174420.jpg", "https://i.postimg.cc/FdTfYd84/254781072164-status-72a8ad8d414b4fd9b4cdbdd2b42f7324.jpg", "https://i.postimg.cc/cvcd1qVN/7afe2684-b3e3-4a12-a80b-17531d44bad4.jpg"];
+    
+    const portraits = ["https://i.postimg.cc/MvFbdDqk/1000481154.jpg", "https://i.postimg.cc/XpJkfhMq/1000481158.jpg", "https://i.postimg.cc/xqgPbQZN/1000481160.jpg", "https://i.postimg.cc/fJLfcF4b/1000481161.jpg", "https://i.postimg.cc/w7vQXPK6/1000481163.jpg", "https://i.postimg.cc/JGn5NgwD/1000481166.jpg", "https://i.postimg.cc/0bQ0Y3gb/1000481167.jpg", "https://i.postimg.cc/vcBtrjRV/1000488116.jpg", "https://i.postimg.cc/PPRz24Tn/1000511845.jpg", "https://i.postimg.cc/rKPCQJcH/1000511870.jpg", "https://i.postimg.cc/bsJ9xMXZ/1000528689.jpg", "https://i.postimg.cc/SjVGz4P2/1000533205.jpg", "https://i.postimg.cc/mtDyYqx1/1000607482.jpg", "https://i.postimg.cc/bsJ9xMXJ/1000614811.jpg", "https://i.postimg.cc/4mSbB5sT/1000615886.jpg", "https://i.postimg.cc/WhH6XnTj/1000616227.jpg", "https://i.postimg.cc/LnX3t7dT/1000616232.jpg", "https://i.postimg.cc/LnbBNTRj/1000616365.jpg", "https://i.postimg.cc/gnJHV59h/pm-1709016191987-cmp-2.jpg", "https://i.postimg.cc/vDXv6yK1/pm-1709016424337-cmp.jpg"];
+
+    // MAGIC LOGIC
+    let magicMode = Math.random() > 0.5 ? 'AI' : 'WA';
+    let waStep = 1; let sName = "";
+
+    async function callAI(prompt) {
+        const status = document.getElementById('ai-status');
+        status.innerText = "Connecting to Phesty Brain...";
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `You are Phesty's personal studio assistant. Be cool, brief, and use emojis. Answer this: ${prompt}` }] }]
+                })
+            });
+            const data = await response.json();
+            if (data.candidates && data.candidates[0]) {
+                status.innerText = data.candidates[0].content.parts[0].text;
+            } else {
+                status.innerText = "AI is silent right now. Try again.";
+            }
+        } catch (error) {
+            console.error(error);
+            status.innerText = "Error: Use GitHub Pages or a local server to talk to AI.";
+        }
+    }
+
+    function handleMagic() {
+        const input = document.getElementById('magic-input');
+        if (magicMode === 'AI') {
+            if (!input.value) return;
+            callAI(input.value);
+            input.value = "";
+        } else {
+            if (waStep === 1) {
+                sName = input.value;
+                if (!sName) return;
+                document.getElementById('magic-title').innerText = `What's on your mind, ${sName}?`;
+                input.value = ""; input.placeholder = "Write your message...";
+                document.getElementById('magic-btn').innerText = "Send to Phesty";
+                waStep = 2;
+            } else {
+                window.open(`https://wa.me/254768946798?text=Yo Phesty, ${sName} says: ${input.value}`, '_blank');
+                document.getElementById('magic-title').innerText = "Vibe Sent! 🚀";
+                input.style.display = "none"; document.getElementById('magic-btn').style.display = "none";
+            }
+        }
+    }
+
+    // WEATHER LOGIC
+    async function getWeather() {
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=0.51&longitude=35.26&current=temperature_2m,relative_humidity_2m');
+            const data = await res.json();
+            const t = Math.round(data.current.temperature_2m);
+            document.getElementById('temp').innerText = t + "°C";
+            document.getElementById('hum').innerText = data.current.relative_humidity_2m + "%";
+            const vibe = t < 18 ? "Chilly in Eldoret. Hoodie weather. ☕" : t > 25 ? "Eldoret is heating up. Stay cool. 🌊" : "Perfect Eldoret vibe. Studio time. ✨";
+            document.getElementById('weather-vibe').innerText = vibe;
+        } catch(e) { 
+            document.getElementById('temp').innerText = "22°C"; 
+            document.getElementById('weather-vibe').innerText = "Vibe is stable. 🤟";
+        }
+    }
+
+    // CORE UI UPDATE
+    function updateUI() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('date-header').innerText = now.toLocaleDateString('en-US', {month:'long', day:'numeric'});
+        const d = now.getDate();
+        const s = (d%10==1&&d!=11)?'st':(d%10==2&&d!=12)?'nd':(d%10==3&&d!=13)?'rd':'th';
+        document.getElementById('q-date').innerText = `${now.toLocaleString('default',{month:'long'})} ${d}${s}, ${now.toLocaleString('default',{weekday:'long'})}`;
+    }
+
+    function toggleMusic() {
+        const a = document.getElementById('audio');
+        const m = document.querySelector('.music-section');
+        a.paused ? (a.play(), m.classList.add('playing')) : (a.pause(), m.classList.remove('playing'));
+    }
+
+    // SHUFFLE & START
+    document.body.style.backgroundImage = `url('${backgrounds[Math.floor(Math.random()*backgrounds.length)]}')`;
+    document.getElementById('portrait-img').style.backgroundImage = `url('${portraits[Math.floor(Math.random()*portraits.length)]}')`;
+    
+    if (magicMode === 'AI') {
+        document.getElementById('magic-title').innerText = "Do u wanna know something? 😏";
+        document.getElementById('magic-input').placeholder = "Ask Phesty AI...";
+        document.getElementById('magic-btn').innerText = "Ask";
+    } else {
+        document.getElementById('magic-title').innerText = "Tell me something... ✍️";
+        document.getElementById('magic-input').placeholder = "Your name?";
+        document.getElementById('magic-btn').innerText = "Next";
+    }
+
+    getWeather(); updateUI(); setInterval(updateUI, 1000);
+    
+    // DAILY QUOTE LOGIC
+    const quotes = ["Your only limit is your mind.", "Energy flows where intention goes.", "Protect your peace.", "Legends never die.", "Stay original.", "Vibe high, always."];
+    const emojis = ["🤟","✨","🔥","🫧","❄️","🧊"];
+    const storedDate = localStorage.getItem('stud_d');
+    if(storedDate !== new Date().toDateString()){
+        localStorage.setItem('stud_d', new Date().toDateString());
+        localStorage.setItem('stud_q', quotes[Math.floor(Math.random()*quotes.length)]);
+        localStorage.setItem('stud_e', emojis[Math.floor(Math.random()*emojis.length)]);
+        localStorage.setItem('stud_i', backgrounds[Math.floor(Math.random()*backgrounds.length)]);
+    }
+    document.getElementById('q-text').innerText = localStorage.getItem('stud_q');
+    document.getElementById('q-emoji').innerText = localStorage.getItem('stud_e');
+    document.getElementById('quote-card').style.backgroundImage = `url('${localStorage.getItem('stud_i')}')`;
+</script>
+
+</body>
+</html>

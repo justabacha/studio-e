@@ -20,7 +20,6 @@ export function toggleView(view) {
   else
     document.getElementById('dashboard-view').classList.add('active-view');
 }
-window.toggleView=toggleView;
 
 function updateUI() {
   const now = new Date();

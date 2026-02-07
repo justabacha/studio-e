@@ -5,7 +5,9 @@ export function initUI() {
   document.body.style.backgroundImage =
     `url('${backgrounds[Math.floor(Math.random() * backgrounds.length)]}')`;
 
-  document.getElementById('portrait-img').style.backgroundImage =
+ const portrait = document.getElementById('portrait-img');
+if (portrait) {
+  portrait.style.backgroundImage =
     `url('${portraits[Math.floor(Math.random() * portraits.length)]}')`;
 }
 

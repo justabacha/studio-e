@@ -42,7 +42,7 @@ function updateUI() {
 /* assets */
 const backgrounds = [
   "https://i.postimg.cc/JGsdX7Xt/1000481158.jpg"
-  // trimmed for sanity – your full list is fine
+  
 ];
 
 const portraits = [

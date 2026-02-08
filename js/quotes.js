@@ -51,6 +51,10 @@ export function initQuotes() {
 }
 
 function render(text, emoji) {
-  document.getElementById('q-text').innerText = text;
-  document.getElementById('q-emoji').innerText = emoji;
+  const textElem = document.getElementById('q-text');
+  const emojiElem = document.getElementById('q-emoji');
+  
+  // Only update if the elements actually exist on the page
+  if (textElem) textElem.innerText = text;
+  if (emojiElem) emojiElem.innerText = emoji;
 }

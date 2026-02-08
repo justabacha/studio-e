@@ -37,3 +37,5 @@ window.toggleTimer = function () {
 
   running = !running;
 };
+// Bottom of timer.js
+window.toggleTimer = toggleTimer;

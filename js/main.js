@@ -1,11 +1,14 @@
-import './ui.js';
-import './timer.js';
-// import './music.js';  <-- Comment this out with // if the file is missing or empty
-// import './magic.js';  <-- Comment this out too if it's giving a 404
+// main.js
+import { initUI } from './ui.js';
+import { toggleTimer } from './timer.js';
+
+// Comment these out if the files aren't ready yet to prevent the 404 crash
+// import './music.js';
+// import './magic.js';
 
 window.addEventListener('DOMContentLoaded', () => {
-    if (window.initUI) {
-        window.initUI();
-        console.log("System Online 🚀");
+    console.log("Phestone Mission: Booting System...");
+    if (typeof initUI === 'function') {
+        initUI();
     }
 });

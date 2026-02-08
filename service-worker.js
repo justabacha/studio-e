@@ -1,4 +1,4 @@
-const CACHE_NAME = 'phestone-mission-v1';
+const CACHE_NAME = 'phestone-mission-v1.0.1';
 const ASSETS = [
   './',
   './index.html',

@@ -19,3 +19,6 @@ export async function getWeather() {
     document.getElementById('temp').innerText = "--°C";
   }
 }
+// bottom of weather.js
+window.getWeather = getWeather; // Expose to window just in case
+setInterval(getWeather, 600000); // Refresh weather every 10 minutes

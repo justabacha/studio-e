@@ -1,4 +1,4 @@
-/* === THE "PHESTONE" INFINITE QUOTE ENGINE (FRESH HIT MODE) === */
+/* === THE "PHESTONE" SHORT-FORM QUOTE ENGINE === */
 
 const EMOJIS = ["🧊","🔥","🍃","⚒️","🧠","🫧","🚀"];
 
@@ -19,32 +19,38 @@ export async function initQuotes() {
         qDateElem.innerText = `📌 ${now.toLocaleString('default', { month: 'long' })} ${d}${s}, ${now.toLocaleString('default', { weekday: 'long' })}`;
     }
 
-    if (textElem) textElem.innerText = "Bypassing Cache...";
+    if (textElem) textElem.innerText = "Filtering for power...";
 
-    // Force a fresh fetch on every refresh
-    await fetchNewQuote(now.toDateString(), quoteTile);
+    // Still in Refresh Mode for your testing
+    await fetchShortQuote(now.toDateString(), quoteTile);
 }
 
-async function fetchNewQuote(today, quoteTile) {
+async function fetchShortQuote(today, quoteTile) {
     const textElem = document.getElementById('q-text');
     const emojiElem = document.getElementById('q-emoji');
 
     try {
-        // ADDING CACHE BUSTER: ?t=[timestamp] ensures the proxy gives us a fresh quote
-        const cacheBuster = `&t=${Date.now()}`;
+        // Fetching from ZenQuotes with a cache buster
         const targetUrl = encodeURIComponent('https://zenquotes.io/api/random');
+        const cacheBuster = `&t=${Date.now()}`;
         const response = await fetch(`https://api.allorigins.win/get?url=${targetUrl}${cacheBuster}`);
         
-        if (!response.ok) throw new Error("Network Response Fail");
-
         const data = await response.json();
         const quoteArray = JSON.parse(data.contents);
-        const finalQuote = quoteArray[0].q;
+        let finalQuote = quoteArray[0].q;
+
+        // --- LENGTH GUARD: If > 10 words, we try one more time or trim it ---
+        const wordCount = finalQuote.split(' ').length;
         
+        if (wordCount > 10) {
+            console.log(`[GHOST-LAYER]: Quote too long (${wordCount} words). Re-fetching...`);
+            return fetchShortQuote(today, quoteTile); // Recursive call to get a shorter one
+        }
+
         const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
         const randomBg = quoteBackgrounds[Math.floor(Math.random() * quoteBackgrounds.length)];
 
-        localStorage.setItem('quote_date', today);
+        // Save for the 24hr cycle (once we lock it)
         localStorage.setItem('quote_text', finalQuote);
         localStorage.setItem('quote_emoji', emoji);
         localStorage.setItem('quote_bg', randomBg);
@@ -55,12 +61,8 @@ async function fetchNewQuote(today, quoteTile) {
             quoteTile.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${randomBg}') center/cover no-repeat`;
         }
 
-        console.log(`%c [GHOST-QUOTE]: NEW FETCH -> ${finalQuote}`, "color: #4ec9b0; font-weight: bold;");
-
     } catch (error) {
-        if (textElem) {
-            textElem.innerHTML = `<span style="color: #f44747;">GHOST-SYS: Feed Offline</span>`;
-        }
         console.error("GHOST-LAYER: Fetch failed.", error);
+        if (textElem) textElem.innerText = "Protect your peace."; 
     }
 }

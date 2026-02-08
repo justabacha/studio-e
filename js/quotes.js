@@ -1,71 +1,33 @@
-/* === THE "PHESTONE" API-ONLY TEST ENGINE === */
+/* === THE "PHESTONE" GHOST LAYER: REFERENCE FIX === */
+let stage = 1;
 
-const EMOJIS = ["🧊","🔥","🍃","⚒️","🧠","🫧","🚀"];
-
-const quoteBackgrounds = [
-    "https://i.postimg.cc/JGsdX7Xt/1000481158.jpg",
-    "https://i.postimg.cc/cvcd1qVN/7afe2684-b3e3-4a12-a80b-17531d44bad4.jpg",
-    "https://i.postimg.cc/9fMv0VzX/hustle-1.jpg", // Add more as needed
-    "https://i.postimg.cc/44YfV2yP/hustle-2.jpg"
-];
-
-export async function initQuotes() {
-    const now = new Date();
-    
-    // 1. Live Date Display
-    const qDateElem = document.getElementById('q-date');
-    if (qDateElem) {
-        const d = now.getDate();
-        const s = (d % 10 === 1 && d !== 11) ? 'st' : (d % 10 === 2 && d !== 12) ? 'nd' : (d % 10 === 3 && d !== 13) ? 'rd' : 'th';
-        qDateElem.innerText = `📌 ${now.toLocaleString('default', { month: 'long' })} ${d}${s}, ${now.toLocaleString('default', { weekday: 'long' })}`;
-    }
-
-    const quoteTile = document.getElementById('quote-card');
-    
-    // 2. FOR TESTING: Always fetch on refresh
-    // (To set back to 24hrs later, we wrap this in: if (localStorage.getItem('quote_date') !== now.toDateString()))
-    await fetchAndRotate(now.toDateString(), quoteTile);
+// 1. Define this FIRST so initLock can see it
+function renderHeader() {
+    const header = document.getElementById('terminal-header');
+    if (!header) return;
+    const cpu1 = (Math.random() * 2 + 1).toFixed(1);
+    const rx = (Math.random() * 150 + 20).toFixed(1);
+    header.innerHTML = `
+<div style="font-family: monospace; line-height: 1.2; font-size: 11px;">
+    <div style="display: flex; justify-content: space-between;">
+        <span style="color: #4ec9b0">1 [||</span><span style="color: #333">                       ${cpu1}%]</span>
+        <span style="color: #d7ba7d; animation: blink 1.5s infinite;">GHOST-LINK: ESTABLISHED</span>
+    </div>
+    <span style="color: #569cd6">Mem[|||||||||          840M/1.87G]</span>
+    <div style="margin-top: 4px; border-top: 1px dashed #222; padding-top: 4px;">
+        <span style="color: #9cdcfe">NET RX:</span> <span style="color: #ccc">${rx} KiB/s</span> | <span style="color: #ce9178">STG: phesty-node-01</span>
+    </div>
+</div>
+<hr style="border: 0; border-top: 1px solid #222; margin: 10px 0;">`;
 }
 
-async function fetchAndRotate(today, quoteTile) {
-    const textElem = document.getElementById('q-text');
-    if (textElem) textElem.innerText = "Connecting to Ghost Feed...";
-
-    try {
-        // Fetching from Quotable API with tags for Hustle/Life
-        const response = await fetch('https://api.quotable.io/random?maxLength=65&tags=inspirational|wisdom|business|competition');
-        
-        if (!response.ok) throw new Error("API Offline");
-        
-        const data = await response.json();
-        const finalQuote = data.content;
-        const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-        const randomBg = quoteBackgrounds[Math.floor(Math.random() * quoteBackgrounds.length)];
-
-        // Save to Storage
-        localStorage.setItem('quote_date', today);
-        localStorage.setItem('quote_text', finalQuote);
-        localStorage.setItem('quote_emoji', emoji);
-        localStorage.setItem('quote_bg', randomBg);
-
-        // Render Live
-        render(finalQuote, emoji);
-        if (quoteTile) {
-            quoteTile.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${randomBg}') center/cover no-repeat`;
-        }
-
-        console.log(`%c [GHOST-QUOTE]: Fetched via API -> "${finalQuote}"`, "color: #4ec9b0; font-weight: bold;");
-
-    } catch (error) {
-        // If this fires, you'll know the API is the issue
-        render("API Link Severed. Check Connection.", "⚠️");
-        console.error("GHOST-LAYER: Fetch failed.", error);
-    }
-}
-
-function render(text, emoji) {
-    const textElem = document.getElementById('q-text');
-    const emojiElem = document.getElementById('q-emoji');
-    if (textElem) textElem.innerText = text;
-    if (emojiElem) emojiElem.innerText = emoji;
+export function initLock(onSuccess) {
+    const lockScreen = document.getElementById('terminal-lock');
+    const logs = document.getElementById('terminal-logs');
+    
+    // Now this call won't fail
+    renderHeader(); 
+    setInterval(renderHeader, 2000);
+    
+    // ... rest of your original logic for input/stages ...
 }

@@ -1,3 +1,4 @@
+import { initLock } from './lock.js';
 import { initUI } from './ui.js';
 import { toggleTimer } from './timer.js';
 import { getWeather } from './weather.js';

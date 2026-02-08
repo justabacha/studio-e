@@ -60,9 +60,46 @@
         .magic-input { width: 85%; padding: 12px; border-radius: 15px; border: none; background: rgba(255,255,255,0.1); color: white; text-align: center; outline: none; margin-bottom: 10px; font-size: 1rem; }
         #ai-status { font-size: 0.85rem; color: #1DB954; font-weight: bold; min-height: 40px; margin-top: 8px; padding: 0 10px; line-height: 1.3; }
         .magic-btn { background: #fff; color: #000; border: none; padding: 10px 25px; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+   #terminal-lock {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #000;
+    color: #0f0; /* Classic Hacker Green */
+    font-family: 'Courier New', Courier, monospace;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.terminal-content { max-width: 800px; width: 100%; margin: 0 auto; }
+#terminal-logs { margin-bottom: 10px; white-space: pre-wrap; font-size: 0.9rem; line-height: 1.4; }
+.input-line { display: flex; align-items: center; }
+.prompt { margin-right: 10px; color: #555; }
+#terminal-input {
+    background: transparent;
+    border: none;
+    color: #0f0;
+    outline: none;
+    flex: 1;
+    font-family: inherit;
+    font-size: 1rem;
+}
+.error-msg { color: #ff2d55; }
+.success-msg { color: #007aff; }
     </style>
 </head>
 <body>
+    <div id="terminal-lock">
+    <div class="terminal-content">
+        <div id="terminal-logs"></div>
+        <div class="input-line">
+            <span class="prompt">Phestone@Mission:~$</span>
+            <input type="text" id="terminal-input" autofocus autocomplete="off" spellcheck="false">
+        </div>
+    </div>
+</div>
 <div class="container">
     <div id="dashboard-view" class="view-container active-view">
         <div class="nav-header">

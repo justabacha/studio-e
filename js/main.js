@@ -6,7 +6,8 @@ import { initQuotes } from './quotes.js';
 import { initMagic, handleMagic } from './magic.js'; // 1. Import Magic
 
 window.addEventListener('DOMContentLoaded', () => {
-    console.log("Phestone Mission: Booting System... 🚀");
+    initLock(() => {
+    console.log("initializing Mission Darshboard... 🚀");
     
     initUI();
     getWeather();

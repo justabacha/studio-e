@@ -86,7 +86,8 @@ export function initMagic() {
         btn.innerText = "Next";   
     }  
 }
-
+//make sure handle magic is exported 
+export { handleMagic };
 // Global Bridge
 window.handleMagic = handleMagic;
 window.initMagic = initMagic;

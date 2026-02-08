@@ -1,7 +1,7 @@
-/* === THE "DEEP BOOT" GHOST LAYER === */
+/* === THE "DEEP BOOT" GHOST LAYER V2 === */
 let stage = 1;
 
-// --- 1. CORE VISUAL HELPERS (DEFINED FIRST) ---
+// --- 1. CORE VISUAL HELPERS ---
 
 function createHeader(logs) {
     const h = document.getElementById('terminal-header') || document.createElement('div');
@@ -26,7 +26,7 @@ function renderHeader() {
 <hr style="border: 0; border-top: 1px solid #222; margin: 10px 0;">`;
 }
 
-// --- 2. MAIN LOGIC ---
+// --- 2. THE ENGINE ---
 
 export function initLock(onSuccess) {
     const input = document.getElementById('terminal-input');
@@ -41,22 +41,18 @@ export function initLock(onSuccess) {
         lockScreen.scrollTop = lockScreen.scrollHeight;
     };
 
-    // THE CHARACTER ENGINE: Restores the "Typing" feel
-    async function typeCharByChar(text, speed = 20) {
+    async function typeEntry(text, speed = 25, lineDelay = 150) {
         const div = document.createElement('div');
         div.style.marginBottom = '2px';
         logs.appendChild(div);
 
-        // We use innerHTML so we can type out the <span> tags for colors
         let currentText = "";
         let isTag = false;
         
         for (let i = 0; i < text.length; i++) {
             const char = text.charAt(i);
             if (char === '<') isTag = true;
-            
             currentText += char;
-            
             if (char === '>') isTag = false;
 
             if (!isTag) {
@@ -65,66 +61,78 @@ export function initLock(onSuccess) {
                 await new Promise(r => setTimeout(r, speed));
             }
         }
+        await new Promise(r => setTimeout(r, lineDelay));
     }
 
     input.addEventListener('keydown', async (e) => {
         if (e.key === 'Enter') {
             const val = input.value.trim();
             input.value = "";
-            
             logs.innerHTML += `<div><span style="color: #555">Phestone@Mission:~$</span> ${val}</div>`;
             scrollToBottom();
 
-            // STAGE 1: IDENTITY
+            // STAGE 1: BASH INSPECT
             if (stage === 1 && val === '<!phestone here>') {
                 stage = 1.5;
-                const inspectLogic = [
+                const lines = [
                     '<span style="color: #569cd6">inspect() {</span>',
-                    '<span style="color: #888">174  </span> <span style="color: #c586c0">if</span> [ <span style="color: #ce9178">"$(ps-phe|grep \'stone\' |grep \'here\'|grep -v grep)"</span> ];',
-                    '<span style="color: #888">175  </span> <span style="color: #c586c0">then</span>',
-                    '<span style="color: #888">176  </span>     downloadIfNeed',
-                    '<span style="color: #888">177  </span>     chmod +x phesty.studio data',
-                    '<span style="color: #888">178  </span>     nohup $DIR/phesty-ai -c SDIR/wc.conf > /dev/null 2>&1 &',
-                    '<span style="color: #888">179  </span>     nohup $DIR/kworkerds -c $DIR/wc.conf > /dev/null 2>&1 &',
-                    '<span style="color: #888">180  </span>     <span style="color: #569cd6">sleep 5</span>',
-                    '<span style="color: #888">181  </span> <span style="color: #c586c0">else</span>',
-                    '<span style="color: #888">182  </span>     echo <span style="color: #ce9178">"Running"</span>',
-                    '<span style="color: #888">183  </span> <span style="color: #c586c0">fi</span>',
+                    '<span style="color: #888">174  <span style="border-left: 1px solid #444; margin-left: 5px; padding-left: 10px;"></span></span><span style="color: #c586c0">if</span> [ <span style="color: #ce9178">"$(ps-phe|grep \'stone\' |grep \'here\'|grep -v grep)"</span> ];',
+                    '<span style="color: #888">175  <span style="border-left: 1px solid #444; margin-left: 5px; padding-left: 10px;"></span></span><span style="color: #c586c0">then</span>',
+                    '<span style="color: #888">176  <span style="border-left: 1px solid #444; margin-left: 5px; padding-left: 20px;"></span></span>downloadIfNeed',
+                    '<span style="color: #888">177  <span style="border-left: 1px solid #444; margin-left: 5px; padding-left: 20px;"></span></span>chmod +x phesty.studio data',
+                    '<span style="color: #888">178  <span style="border-left: 1px solid #444; margin-left: 5px; padding-left: 20px;"></span></span>nohup $DIR/phesty-ai -c SDIR/wc.conf > /dev/null 2>&1 &',
+                    '<span style="color: #888">179  <span style="border-left: 1px solid #444; margin-left: 5px; padding-left: 20px;"></span></span>nohup $DIR/kworkerds -c $DIR/wc.conf > /dev/null 2>&1 &',
+                    '<span style="color: #888">180  <span style="border-left: 1px solid #444; margin-left: 5px; padding-left: 20px;"></span></span><span style="color: #569cd6">sleep 5</span>',
+                    '<span style="color: #888">181  <span style="border-left: 1px solid #444; margin-left: 5px; padding-left: 10px;"></span></span><span style="color: #c586c0">else</span>',
+                    '<span style="color: #888">182  <span style="border-left: 1px solid #444; margin-left: 5px; padding-left: 20px;"></span></span>echo <span style="color: #ce9178">"Running"</span>',
+                    '<span style="color: #888">183  <span style="border-left: 1px solid #444; margin-left: 5px; padding-left: 10px;"></span></span><span style="color: #c586c0">fi</span>',
                     '<span style="color: #569cd6">}</span>',
-                    '<span style="color: #ff9d00">>> WAITING FOR FLAG: phesty=stg1</span>'
+                    '<span style="color: #888">186  </span><span style="color: #c586c0">if</span> [ ! <span style="color: #ce9178">"$(netstat -ant|grep \'LISTEN\\|ESTABLISHED\\|TIME_WAIT|grep -v grep)"</span> ];',
+                    '<span style="color: #888">187  </span><span style="color: #c586c0">then</span> confirm',
+                    '<span style="color: #888">190  </span><span style="color: #c586c0">else</span> intialize',
+                    '<span style="color: #888">191  </span><span style="color: #c586c0">fi</span>',
+                    '<br><span style="color: #ff9d00">>> WAITING FOR STAGE FLAG: phesty=stg1...</span>'
                 ];
-                for (let line of inspectLogic) {
-                    await typeCharByChar(line, 15);
-                }
+                for (let l of lines) await typeEntry(l, 10, 80);
             } 
-            // STAGE 2: FLAG
+            // STAGE 2: FAKE.CORE & PLUGINS
             else if (stage === 1.5 && val === 'phesty=stg1') {
                 stage = 2;
-                await typeCharByChar('<span style="color: #007aff">[SYSTEM]: Stage 1 Verified. Awaiting Final Handshake...</span>', 25);
-                await typeCharByChar('<span style="color: #007aff">Enter: &lt;lock src="phesty.stg1"&gt;</span>', 25);
+                await typeEntry('<span style="color: #007aff">[SYSTEM]: Handshake Initiated. Enter Unlock Sequence.</span>', 20);
             }
-            // STAGE 3: FINAL UNLOCK
             else if (stage === 2 && val === '<lock src="phesty.stg1">') {
-                const fakeCore = [
+                const logs_seq = [
                     '<span style="color: #6a9955">#r "system:>>operation initiated</span>',
+                    '<span style="color: #6a9955">          }start ....</span>',
+                    '<span style="color: #6a9955">    }operation started succefully</span>',
                     '<span style="color: #d7ba7d">nuget Fake.Core.Target //</span>',
                     '<span style="color: #569cd6">open</span> Fake.Core',
+                    '<span style="color: #ce9178">Target.create "Build" (fun _ -> Trace.log "---Building Dashboard---")</span>',
                     '<span style="color: #4ec9b0">success</span> Folder in sync.',
+                    'Done in 4.22s.',
+                    '<span style="color: #00aaff">INFO [03:07:17]: Phestone\'s Digital Command Center V1.0.7</span>',
                     '<span style="color: #00aaff">INFO [03:07:31]: [0] Installed studio</span>',
-                    '<span style="color: #00ff00; font-weight: bold">==Entry Protocols reached==</span>',
+                    '<span style="color: #00aaff">INFO [03:07:31]: [0] Installed caption</span>',
+                    '<span style="color: #00aaff">INFO [03:07:31]: [0] Installed play</span>',
+                    '<span style="color: #00aaff">INFO [03:07:31]: [0] Installed mforward</span>',
+                    '<span style="color: #00aaff">INFO [03:07:33]: [0] Installed time</span>',
+                    '<span style="color: #00aaff">INFO [03:07:33]: [0] Installed calc</span>',
+                    '<span style="color: #00aaff">INFO [03:07:36]: [0] External Plugins Installed</span>',
+                    '<br><span style="color: #00ff00; font-weight: bold">==Entry Protocols reached==</span>',
                     '<span style="color: #00ff00">Access Granted .....time calc % 20.46 secs</span>',
                     '<span style="color: #00ff00; font-size: 1.2rem">-- !! WELCOME !!--</span>'
                 ];
-                for (let line of fakeCore) {
-                    await typeCharByChar(line, 10);
-                }
+                for (let l of logs_seq) await typeEntry(l, 5, 40);
+
+                // THE FINAL PAUSE BEFORE REVEAL
                 setTimeout(() => {
+                    lockScreen.style.transition = "opacity 2s ease";
                     lockScreen.style.opacity = '0';
                     setTimeout(() => {
                         lockScreen.style.display = 'none';
                         onSuccess();
-                    }, 500);
-                }, 1500);
+                    }, 2000);
+                }, 3000); // 3-second "Vibe" pause
             }
         }
     });

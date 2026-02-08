@@ -1,66 +1,94 @@
-/* === THE "PHESTONE" REPO-SYNC ENGINE: NATURE TRIAL === */
+/* === THE "PHESTONE" 24-HOUR GHOST VAULT === */
 
 const EMOJIS = ["🧊","🔥","🍃","⚒️","🧠","🫧","🚀"];
 
-// HD Landscape & Nature Collection
 const quoteBackgrounds = [
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000", // Yosemite Valley
-    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000", // Rocky Mountains
-    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1000", // Foggy Forest
-    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=1000", // Sunlit Woods
-    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=1000", // New Zealand Lake
-    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&q=80&w=1000"  // Peaceful Meadow
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1493246507139-91e8bef99c02?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1433086566608-571ad11350a9?auto=format&fit=crop&q=80&w=1000"
 ];
 
 const JSON_PATH = "./quotes_feed.json";
 
 export async function initQuotes() {
     const now = new Date();
-    const qDateElem = document.getElementById('q-date');
+    const today = now.toDateString();
     const quoteTile = document.getElementById('quote-card');
-    const textElem = document.getElementById('q-text');
+    const qDateElem = document.getElementById('q-date');
 
+    // 1. Permanent Date Display
     if (qDateElem) {
         const d = now.getDate();
         const s = (d % 10 === 1 && d !== 11) ? 'st' : (d % 10 === 2 && d !== 12) ? 'nd' : (d % 10 === 3 && d !== 13) ? 'rd' : 'th';
         qDateElem.innerText = `📌 ${now.toLocaleString('default', { month: 'long' })} ${d}${s}, ${now.toLocaleString('default', { weekday: 'long' })}`;
     }
 
-    // TRIAL MODE: Always sync and rotate backgrounds on refresh
-    await syncRepoQuotes(now.toDateString(), quoteTile);
+    // 2. The 24-Hour Check
+    const cachedDate = localStorage.getItem('quote_date');
+    if (cachedDate === today) {
+        // LOCK IN: Load exactly what was saved yesterday
+        render(localStorage.getItem('quote_text'), localStorage.getItem('quote_emoji'));
+        if (quoteTile) {
+            const savedBg = localStorage.getItem('quote_bg');
+            quoteTile.style.background = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('${savedBg}') center/cover no-repeat`;
+        }
+    } else {
+        // NEW DAY: Run the sync cycle
+        await dailySync(today, quoteTile);
+    }
 }
 
-async function syncRepoQuotes(today, quoteTile) {
-    const textElem = document.getElementById('q-text');
-    const emojiElem = document.getElementById('q-emoji');
-
+async function dailySync(today, quoteTile) {
     try {
         const response = await fetch(`${JSON_PATH}?v=${Date.now()}`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
+        if (!response.ok) throw new Error("Sync Interrupted");
         const quotesList = await response.json();
-        const finalQuote = quotesList[Math.floor(Math.random() * quotesList.length)];
-        const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-        
-        // Pick a fresh HD nature background
-        const randomBg = quoteBackgrounds[Math.floor(Math.random() * quoteBackgrounds.length)];
 
-        // Save state
+        // 3. Never Repeat Logic (Excluding used quotes)
+        let used = JSON.parse(localStorage.getItem('used_quotes') || "[]");
+        let available = quotesList.filter(q => !used.includes(q));
+
+        // Reset cycle if all quotes have been shown
+        if (available.length === 0) {
+            used = [];
+            available = quotesList;
+        }
+
+        const finalQuote = available[Math.floor(Math.random() * available.length)];
+        const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+        const bg = quoteBackgrounds[Math.floor(Math.random() * quoteBackgrounds.length)];
+
+        // Update Used List
+        used.push(finalQuote);
+        
+        // Save everything for the next 24 hours
         localStorage.setItem('quote_date', today);
         localStorage.setItem('quote_text', finalQuote);
         localStorage.setItem('quote_emoji', emoji);
-        localStorage.setItem('quote_bg', randomBg);
+        localStorage.setItem('quote_bg', bg);
+        localStorage.setItem('used_quotes', JSON.stringify(used));
 
-        if (textElem) textElem.innerText = finalQuote;
-        if (emojiElem) emojiElem.innerText = emoji;
+        render(finalQuote, emoji);
         if (quoteTile) {
-            // Apply HD background with a subtle dark overlay for text readability
-            quoteTile.style.background = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('${randomBg}') center/cover no-repeat`;
+            quoteTile.style.background = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('${bg}') center/cover no-repeat`;
         }
 
-        console.log("%c [GHOST-TRIAL]: Nature background & Quote Synced.", "color: #4ec9b0; font-weight: bold;");
+        console.log("%c [GHOST-VAULT]: 24hr Cycle Synchronized.", "color: #4ec9b0; font-weight: bold;");
 
     } catch (error) {
-        console.error("GHOST-SYNC: Error.", error);
+        console.error("GHOST-VAULT: Sync failed.", error);
     }
+}
+
+function render(text, emoji) {
+    const t = document.getElementById('q-text');
+    const e = document.getElementById('q-emoji');
+    if (t) t.innerText = text || "Protect your peace.";
+    if (e) e.innerText = emoji || "🧊";
 }

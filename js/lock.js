@@ -16,17 +16,27 @@ function renderHeader() {
     const header = document.getElementById('terminal-header');
     if (!header) return;
     
-    // Dynamic values for that "live" server feel
+    // Live Telemetry Math
     const cpu1 = (Math.random() * 2 + 1).toFixed(1);
     const cpu2 = (Math.random() * 5 + 4).toFixed(1);
-    const memPercent = Math.floor(Math.random() * 2) + 45; // Simulates stable usage
+    const rx = (Math.random() * 150 + 20).toFixed(1); // Random download speed
+    const tx = (Math.random() * 50 + 5).toFixed(1);   // Random upload speed
     
     header.innerHTML = `
-<div style="font-family: monospace; line-height: 1.2;">
-    <span style="color: #4ec9b0">1 [||</span><span style="color: #333">                       ${cpu1}%]</span>   Tasks: 42, 1 running
-    <span style="color: #4ec9b0">2 [|||||</span><span style="color: #333">                    ${cpu2}%]</span>   Load average: 0.12 0.25 0.33
-    <span style="color: #569cd6">Mem[|||||||||          840M/1.87G]</span>   Uptime: 04:20:55
-    <span style="color: #f44747">Swp[||                 199M/256M]</span>
+<div style="font-family: monospace; line-height: 1.2; font-size: 11px;">
+    <div style="display: flex; justify-content: space-between;">
+        <span style="color: #4ec9b0">1 [||</span><span style="color: #333">                       ${cpu1}%]</span>
+        <span style="color: #d7ba7d">GHOST-LINK: ESTABLISHED</span>
+    </div>
+    <div style="display: flex; justify-content: space-between;">
+        <span style="color: #4ec9b0">2 [|||||</span><span style="color: #333">                    ${cpu2}%]</span>
+        <span style="color: #606060">Tasks: 42, 1 running</span>
+    </div>
+    <span style="color: #569cd6">Mem[|||||||||          840M/1.87G]</span>   <span style="color: #606060">Load avg: 0.12 0.25</span>
+    <span style="color: #f44747">Swp[||                 199M/256M]</span>    <span style="color: #606060">Uptime: 04:20:55</span>
+    <div style="margin-top: 4px; border-top: 1px dashed #222; padding-top: 4px;">
+        <span style="color: #9cdcfe">NET RX:</span> <span style="color: #ccc">${rx} KiB/s</span> | <span style="color: #9cdcfe">TX:</span> <span style="color: #ccc">${tx} KiB/s</span> | <span style="color: #ce9178">STG: phesty-node-01</span>
+    </div>
 </div>
 <hr style="border: 0; border-top: 1px solid #222; margin: 10px 0;">`;
 }

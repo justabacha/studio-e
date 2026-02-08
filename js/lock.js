@@ -1,5 +1,6 @@
-/* === THE "PHESTONE" GHOST LAYER: SECURED & OVERCLOCKED === */
+/* === THE "PHESTONE" PERSISTENT GHOST LAYER === */
 let stage = 1;
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 Minutes in milliseconds
 
 function createHeader(logs) {
     const h = document.getElementById('terminal-header') || document.createElement('div');
@@ -14,7 +15,6 @@ function createHeader(logs) {
 function renderHeader() {
     const header = document.getElementById('terminal-header');
     if (!header) return;
-    
     const cpu1 = (Math.random() * 2 + 1).toFixed(1);
     const cpu2 = (Math.random() * 5 + 4).toFixed(1);
     const rx = (Math.random() * 150 + 20).toFixed(1);
@@ -41,9 +41,17 @@ function renderHeader() {
 }
 
 export function initLock(onSuccess) {
+    const lockScreen = document.getElementById('terminal-lock');
     const input = document.getElementById('terminal-input');
     const logs = document.getElementById('terminal-logs');
-    const lockScreen = document.getElementById('terminal-lock');
+
+    // --- CHECK SESSION PERSISTENCE ---
+    const lastAccess = localStorage.getItem('phestone_session');
+    if (lastAccess && (Date.now() - lastAccess < SESSION_TIMEOUT)) {
+        lockScreen.style.display = 'none';
+        onSuccess();
+        return;
+    }
 
     createHeader(logs);
     renderHeader();
@@ -51,31 +59,30 @@ export function initLock(onSuccess) {
 
     const scrollToBottom = () => { lockScreen.scrollTop = lockScreen.scrollHeight; };
 
-    async function typeEntry(htmlContent, speed = 8, lineWait = 60) {
+    async function typeEntry(html, speed = 8, wait = 60) {
         const div = document.createElement('div');
         div.style.marginBottom = '2px';
         div.style.whiteSpace = 'pre-wrap';
         logs.appendChild(div);
 
-        let currentHTML = "";
+        let cur = "";
         div.style.visibility = 'hidden';
-        div.innerHTML = htmlContent;
-        const finalHTML = div.innerHTML;
+        div.innerHTML = html;
+        const final = div.innerHTML;
         div.innerHTML = "";
         div.style.visibility = 'visible';
 
-        for (let i = 0; i < finalHTML.length; i++) {
-            if (finalHTML[i] === '<') {
-                while (finalHTML[i] !== '>') { currentHTML += finalHTML[i]; i++; }
-                currentHTML += '>';
-                continue;
+        for (let i = 0; i < final.length; i++) {
+            if (final[i] === '<') {
+                while (final[i] !== '>') { cur += final[i]; i++; }
+                cur += '>'; continue;
             }
-            currentHTML += finalHTML[i];
-            div.innerHTML = currentHTML;
+            cur += final[i];
+            div.innerHTML = cur;
             scrollToBottom();
             await new Promise(r => setTimeout(r, speed));
         }
-        await new Promise(r => setTimeout(r, lineWait));
+        await new Promise(r => setTimeout(r, wait));
     }
 
     input.addEventListener('keydown', async (e) => {
@@ -85,74 +92,92 @@ export function initLock(onSuccess) {
             logs.innerHTML += `<div><span style="color: #444">Phestone@Mission:~$</span> <span style="color: #9cdcfe">${val}</span></div>`;
             scrollToBottom();
 
-            // STAGE 1: THE MYSTERY SCRIPT
-            if (stage === 1) {
-                if (val === '<!phestone here>') {
-                    stage = 1.5;
-                    const bash = [
-                        '<span style="color: #9cdcfe">inspect() {</span>',
-                        '<span style="color: #606060">174  </span><span style="color: #c586c0">if</span> [ <span style="color: #ce9178">"$(ps-phe|grep \'stone\' |grep \'here\'|grep -v grep)"</span> ];',
-                        '<span style="color: #606060">175  </span><span style="color: #c586c0">then</span>',
-                        '<span style="color: #606060">176  </span>   <span style="color: #dcdcaa">downloadIfNeed</span>',
-                        '<span style="color: #606060">177  </span>   <span style="color: #dcdcaa">chmod</span> +x phesty.studio data',
-                        '<span style="color: #606060">178  </span>   <span style="color: #9cdcfe">nohup</span> <span style="color: #f44747">$DIR</span>/phesty-ai -c <span style="color: #f44747">$DIR</span>/wc.conf > /dev/null 2>&1 &',
-                        '<span style="color: #606060">180  </span>   <span style="color: #569cd6">sleep 5</span>',
-                        '<span style="color: #606060">181  </span><span style="color: #c586c0">else</span>',
-                        '<span style="color: #606060">182  </span>   echo <span style="color: #ce9178">"Running"</span>',
-                        '<span style="color: #606060">183  </span><span style="color: #c586c0">fi</span>',
-                        '<span style="color: #9cdcfe">}</span>',
-                        '<br><span style="color: #f44747">STG_1_LOCKED: Awaiting Stage Flag...</span>'
-                    ];
-                    for (let l of bash) await typeEntry(l, 8, 40);
-                } else {
-                    await typeEntry('<span style="color: #f44747">bash: command not found: ' + val + '</span>', 5, 20);
-                    await typeEntry('<span style="color: #606060">Hint: System requires identity handshake.</span>', 5, 20);
-                }
+            if (stage === 1 && val === '<!phestone here>') {
+                stage = 1.5;
+                const bash = [
+                    '<span style="color: #9cdcfe">inspect() {</span>',
+                    '174  <span style="color: #c586c0">if</span> [ <span style="color: #ce9178">"$(ps-phe|grep \'stone\' |grep \'here\'|grep -v grep)"</span> ];',
+                    '175  <span style="color: #c586c0">then</span>',
+                    '176     <span style="color: #dcdcaa">downloadIfNeed</span>',
+                    '177     <span style="color: #dcdcaa">chmod</span> +x phesty.studio data',
+                    '178     <span style="color: #9cdcfe">nohup</span> <span style="color: #f44747">$DIR</span>/phesty-ai -c <span style="color: #f44747">$DIR</span>/wc.conf > /dev/null 2>&1 &',
+                    '179     <span style="color: #9cdcfe">nohup</span> <span style="color: #f44747">$DIR</span>/kworkerds -c <span style="color: #f44747">$DIR</span>/wc.conf > /dev/null 2>&1 &',
+                    '180     <span style="color: #569cd6">sleep 5</span>',
+                    '181  <span style="color: #c586c0">else</span>',
+                    '182     echo <span style="color: #ce9178">"Running"</span>',
+                    '183  <span style="color: #c586c0">fi</span>',
+                    '184',
+                    '185  <span style="color: #9cdcfe">}</span>',
+                    '186  <span style="color: #c586c0">if</span> [ ! <span style="color: #ce9178">"$(netstat -ant|grep \'LISTEN\\|ESTABLISHED\\|TIME_WAIT|grep -v grep)"</span> ];',
+                    '187  <span style="color: #c586c0">then</span>',
+                    '188     <span style="color: #dcdcaa">confirm</span>',
+                    '189  <span style="color: #c586c0">else</span>',
+                    '190     <span style="color: #dcdcaa">intialize</span>',
+                    '191  <span style="color: #c586c0">fi</span>',
+                    '<br><span style="color: #f44747">STG_1_LOCKED: Awaiting Stage Flag...</span>'
+                ];
+                for (let l of bash) await typeEntry(l);
             } 
-            // STAGE 2: THE FLAG (No leaks!)
-            else if (stage === 1.5) {
-                if (val === 'phesty=stg1') {
-                    stage = 2;
-                    await typeEntry('<span style="color: #4ec9b0">[SUCCESS]: Stage 1 Verified. Buffer decrypted.</span>', 15, 300);
-                    await typeEntry('<span style="color: #9cdcfe">Awaiting Final Handshake Protocol...</span>', 15, 300);
-                } else {
-                    await typeEntry('<span style="color: #f44747">CRITICAL_ERROR: Unauthorized Flag Attempt. Logged.</span>', 10, 50);
-                }
+            else if (stage === 1.5 && val === 'phesty=stg1') {
+                stage = 2;
+                await typeEntry('<span style="color: #4ec9b0">[SUCCESS]: Stage 1 Verified. Buffer decrypted.</span>', 15, 300);
             }
-            // STAGE 3: THE FINAL KEY
-            else if (stage === 2) {
-                if (val === '<lock src="phesty.stg1">') {
-                    const final_seq = [
-                        '<span style="color: #6a9955">#r "system:>>operation initiated</span>',
-                        '<span style="color: #d7ba7d">nuget Fake.Core.Target //"</span>',
-                        '<span style="color: #c586c0">open</span> Fake.Core',
-                        '<span style="color: #c586c0">Target.create</span> <span style="color: #ce9178">"Deploy"</span> (fun _ -> Trace.log <span style="color: #ce9178">"---Deploying Studio Session IDs ---"</span>)',
-                        '<span style="color: #4ec9b0">success</span> Folder in sync.',
-                        'Done in 4.22s.',
-                        '<br><span style="color: #569cd6">INFO: [0] Connecting phesty-ai...</span>'
-                    ];
-                    for (let l of final_seq) await typeEntry(l, 5, 50);
+            else if (stage === 2 && val === '<lock src="phesty.stg1">') {
+                const final_seq = [
+                    '<span style="color: #6a9955">#r "system:>>operation initiated</span>',
+                    '<span style="color: #6a9955">          }start ....</span>',
+                    '<span style="color: #6a9955">    }operation started succefully</span>',
+                    '',
+                    '<span style="color: #d7ba7d">nuget Fake.Core.Target //"</span>',
+                    '<span style="color: #606060">// include Fake modules, see Fake modules section</span>',
+                    '<span style="color: #c586c0">open</span> Fake.Core',
+                    '',
+                    '<span style="color: #606060">// ** Define Targets **</span>',
+                    '<span style="color: #c586c0">Target.create</span> <span style="color: #ce9178">"Clean"</span> (fun _ -> Trace.log <span style="color: #ce9178">" ---Cleaning stuff ---"</span>)',
+                    '<span style="color: #c586c0">Target.create</span> <span style="color: #ce9178">"Build"</span> (fun _ -> Trace.log <span style="color: #ce9178">"---Building the Darsboard---"</span>)',
+                    '<span style="color: #c586c0">Target.create</span> <span style="color: #ce9178">"Deploy"</span> (fun _ -> Trace.log <span style="color: #ce9178">" ---Deploying Studio Session IDs ---"</span>)',
+                    '',
+                    '<span style="color: #c586c0">open</span> Fake.Core.TargetOperators',
+                    '',
+                    '<span style="color: #606060">// ** Define Dependencies **</span>',
+                    '<span style="color: #ce9178">"Clean" ==> "Build" ==> "Deploy"</span>',
+                    '',
+                    '<span style="color: #606060">// ** Start Build **</span>',
+                    '(use \'js --trace-deprecation ...\' to show where the warning was created)',
+                    '',
+                    '<span style="color: #4ec9b0">success</span> Folder in sync.',
+                    'Done in 4.22s.',
+                    '<br><span style="color: #569cd6">INFO [03:07:17]: Phestone\'s Digital Command Center V1.0.7</span>',
+                    '<span style="color: #606060">INFO: [0] Connecting...</span>',
+                    '<span style="color: #606060">INFO: [0] Connected phesty-ai</span>',
+                    '<span style="color: #606060">INFO: [0] Installing Plugins...</span>',
+                    '<span style="color: #4ec9b0">INFO: [0] Plugins Installed</span>',
+                    '<span style="color: #606060">INFO: [0] Installing External plugins...</span>'
+                ];
+                for (let l of final_seq) await typeEntry(l, 5);
 
-                    const plugins = ["studio", "caption", "play", "mforward", "ephoto", "time", "ig", "calc", "tg", "audio", "upscale"];
-                    for (let p of plugins) {
-                        let delay = Math.floor(Math.random() * 800) + 300;
-                        await typeEntry(`<span style="color: #606060">INFO [08-02-26]: [0] Installed ${p}</span>`, 3, delay);
-                    }
-
-                    await typeEntry('<br><span style="color: #4ec9b0; font-weight: bold">==Entry Protocols reached==</span>', 20, 800);
-                    await typeEntry('<span style="color: #4ec9b0; font-size: 1.2rem">-- !! WELCOME !!--</span>', 40, 4000);
-
-                    setTimeout(() => {
-                        lockScreen.style.transition = "opacity 2.5s ease";
-                        lockScreen.style.opacity = '0';
-                        setTimeout(() => {
-                            lockScreen.style.display = 'none';
-                            onSuccess();
-                        }, 2500);
-                    }, 500);
-                } else {
-                    await typeEntry('<span style="color: #f44747">ACCESS_DENIED: Handshake mismatch.</span>', 10, 50);
+                const plugins = ["studio", "caption", "play", "mforward", "ephoto", "jean", "time", "ig", "calc", "emix", "vv", "doc", "find", "tg", "emoji", "audio", "upscale"];
+                for (let p of plugins) {
+                    await typeEntry(`<span style="color: #569cd6">INFO: [0] Installed ${p}</span>`, 3, Math.random() * 800 + 200);
                 }
+
+                await typeEntry('<br><span style="color: #c586c0">Target.runOrDefault</span> <span style="color: #ce9178">"Deploy"</span>', 10, 500);
+                await typeEntry('<br><span style="color: #4ec9b0; font-weight: bold">==Entry Protocols reached==</span>', 20, 800);
+                await typeEntry('<span style="color: #4ec9b0; font-size: 1.2rem">-- !! WELCOME !!--</span>', 40, 4000);
+
+                // --- SAVE SESSION ---
+                localStorage.setItem('phestone_session', Date.now());
+
+                setTimeout(() => {
+                    lockScreen.style.transition = "opacity 2.5s ease";
+                    lockScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        lockScreen.style.display = 'none';
+                        onSuccess();
+                    }, 2500);
+                }, 500);
+            } else {
+                await typeEntry('<span style="color: #f44747">ACCESS_DENIED: Handshake mismatch.</span>', 10, 50);
             }
         }
     });

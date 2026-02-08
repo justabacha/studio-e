@@ -17,7 +17,6 @@ async function callGroq(promptText) {
     status.innerText = "phesty is typing... 💬";  
     
     try {  
-        // Puter Net Fetch Fix for v2  
         const response = await puter.net.fetch("https://api.groq.com/openai/v1/chat/completions", {  
             method: "POST",  
             headers: {   
@@ -47,7 +46,8 @@ async function callGroq(promptText) {
 }  
 
 /* === CORE FUNCTIONS === */
-export function handleMagic() {  
+// Note: I removed the 'export' keyword from here to avoid the duplicate error
+function handleMagic() {  
     const input = document.getElementById('magic-input');  
     const val = input.value.trim();  
     if (!val) return;  
@@ -71,7 +71,7 @@ export function handleMagic() {
     }  
 }  
 
-export function initMagic() {  
+function initMagic() {  
     const title = document.getElementById('magic-title');  
     const input = document.getElementById('magic-input');  
     const btn = document.getElementById('magic-btn');  
@@ -86,8 +86,8 @@ export function initMagic() {
         btn.innerText = "Next";   
     }  
 }
-//make sure handle magic is exported 
-export { handleMagic };
-// Global Bridge
+
+// Global Bridge & Single Export Point
+export { handleMagic, initMagic };
 window.handleMagic = handleMagic;
 window.initMagic = initMagic;

@@ -20,3 +20,4 @@ window.addEventListener('DOMContentLoaded', () => {
     
     console.log("Magic Mode Active. Dun know. 😎");
 });
+});

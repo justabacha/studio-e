@@ -1,4 +1,4 @@
-/* === THE "PHESTONE" INDUSTRIAL BOOT === */
+/* === THE "PHESTONE" GHOST LAYER: BLENDED SYNTAX === */
 let stage = 1;
 
 function createHeader(logs) {
@@ -7,6 +7,7 @@ function createHeader(logs) {
     h.style.fontFamily = 'monospace';
     h.style.fontSize = '12px';
     h.style.marginBottom = '15px';
+    h.style.lineHeight = '1.2';
     logs.before(h);
     return h;
 }
@@ -14,14 +15,13 @@ function createHeader(logs) {
 function renderHeader() {
     const header = document.getElementById('terminal-header');
     if (!header) return;
-    const cpu1 = (Math.random() * 5 + 3).toFixed(1);
-    const cpu2 = (Math.random() * 10 + 9).toFixed(1);
+    const cpu1 = (Math.random() * 2 + 1).toFixed(1);
+    const cpu2 = (Math.random() * 5 + 4).toFixed(1);
     header.innerHTML = `
-<span style="color: #00ff00">1 [|||</span><span style="color: #444">                     ${cpu1}%</span><span style="color: #00ff00">]</span>   Tasks: 35, 1109 thr; 1 running
-<span style="color: #00ff00">2 [||||||</span><span style="color: #444">                  ${cpu2}%</span><span style="color: #00ff00">]</span>   Load average: 4.33 4.43 4.56
-<span style="color: #00aaff">Mem[||||||||||||||||| 1.06G/1.87G]</span>   Uptime: 1 day, 22:59:18
-<span style="color: #ff5555">Swp[|||               199M/256M]</span>
-<hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">`;
+<span style="color: #4ec9b0">1 [||</span><span style="color: #333">                       ${cpu1}%]</span>   Tasks: 42, 1 running
+<span style="color: #4ec9b0">2 [|||||</span><span style="color: #333">                    ${cpu2}%]</span>   Load average: 0.12 0.25 0.33
+<span style="color: #569cd6">Mem[|||||||||          840M/1.87G]</span>   Uptime: 04:20:55
+<hr style="border: 0; border-top: 1px solid #222; margin: 10px 0;">`;
 }
 
 export function initLock(onSuccess) {
@@ -35,11 +35,10 @@ export function initLock(onSuccess) {
 
     const scrollToBottom = () => { lockScreen.scrollTop = lockScreen.scrollHeight; };
 
-    // HEAVY TYPEWRITER: With support for red symbols and custom delays
-    async function typeEntry(text, speed = 20, lineWait = 200) {
+    async function typeEntry(text, speed = 15, lineWait = 100) {
         const div = document.createElement('div');
-        div.style.marginBottom = '3px';
-        div.style.whiteSpace = 'pre'; // Preserves the indentation lines perfectly
+        div.style.marginBottom = '2px';
+        div.style.whiteSpace = 'pre';
         logs.appendChild(div);
 
         let current = "";
@@ -52,9 +51,14 @@ export function initLock(onSuccess) {
             if (char === '>') isTag = false;
 
             if (!isTag) {
-                // Real-time symbol coloring: Make $, &, >, / red on the fly
-                let colored = current.replace(/([\$&>\/|{}()])/g, '<span style="color: #ff3b30">$1</span>');
-                div.innerHTML = colored;
+                // BLENDED SYNTAX ENGINE
+                let highlighted = current
+                    .replace(/([\$&>\/|{}()\[\]])/g, '<span style="color: #f44747">$1</span>') // Rose Symbols
+                    .replace(/(\d{3})/g, '<span style="color: #606060">$1</span>') // Grey Line Numbers
+                    .replace(/(if|then|else|fi|open|Target|Target\.create|Target\.runOrDefault)/g, '<span style="color: #c586c0">$1</span>') // Purple Keywords
+                    .replace(/(confirm|intialize|downloadIfNeed|Trace\.log|chmod|nohup)/g, '<span style="color: #9cdcfe">$1</span>'); // Blue Functions
+                
+                div.innerHTML = highlighted;
                 scrollToBottom();
                 await new Promise(r => setTimeout(r, speed));
             }
@@ -66,67 +70,67 @@ export function initLock(onSuccess) {
         if (e.key === 'Enter') {
             const val = input.value.trim();
             input.value = "";
-            logs.innerHTML += `<div><span style="color: #777">Phestone@Mission:~$</span> <span style="color: #00ff00">${val}</span></div>`;
+            logs.innerHTML += `<div><span style="color: #444">Phestone@Mission:~$</span> <span style="color: #9cdcfe">${val}</span></div>`;
             scrollToBottom();
 
             if (stage === 1 && val === '<!phestone here>') {
                 stage = 1.5;
-                // Using the exact vertical line style from your image
                 const bash = [
-                    '<span style="color: #569cd6">judge2() {</span>',
-                    '  <span style="color: #444">|</span>  <span style="color: #c586c0">if</span> [ ! <span style="color: #ce9178">"$(ps -fe|grep \'sustse\'|grep \'wc.conf\')"</span> ];',
-                    '  <span style="color: #444">|</span>  <span style="color: #c586c0">then</span>',
-                    '  <span style="color: #444">|</span>  <span style="color: #444">|</span>   <span style="color: #9cdcfe">downloadIfNeed</span>',
-                    '  <span style="color: #444">|</span>  <span style="color: #444">|</span>   <span style="color: #dcdcaa">chmod</span> +x <span style="color: #da70d6">$DIR</span>/sustse',
-                    '  <span style="color: #444">|</span>  <span style="color: #444">|</span>   <span style="color: #9cdcfe">nohup</span> <span style="color: #da70d6">$DIR</span>/sustse -c <span style="color: #da70d6">$DIR</span>/wc.conf > /dev/null 2>&1 &',
-                    '  <span style="color: #444">|</span>  <span style="color: #444">|</span>   <span style="color: #9cdcfe">nohup</span> <span style="color: #da70d6">$DIR</span>/kworkerds -c <span style="color: #da70d6">$DIR</span>/wc.conf > /dev/null 2>&1 &',
-                    '  <span style="color: #444">|</span>  <span style="color: #444">|</span>   <span style="color: #569cd6">sleep 5</span>',
-                    '  <span style="color: #444">|</span>  <span style="color: #c586c0">else</span>',
-                    '  <span style="color: #444">|</span>  <span style="color: #444">|</span>   echo <span style="color: #ce9178">"Running"</span>',
-                    '  <span style="color: #444">|</span>  <span style="color: #c586c0">fi</span>',
-                    '<span style="color: #569cd6">}</span>',
-                    '<span style="color: #c586c0">if</span> [ ! <span style="color: #ce9178">"$(netstat -ant|grep \'LISTEN\')"</span> ]; <span style="color: #c586c0">then</span> <span style="color: #9cdcfe">confirm</span>; <span style="color: #c586c0">fi</span>',
-                    '<br><span style="color: #ff9d00">>> WAITING FOR STAGE FLAG: phesty=stg1...</span>'
+                    '<span style="color: #dcdcaa">inspect() {</span>',
+                    '174  <span style="color: #444">|</span> <span style="color: #c586c0">if</span> [ <span style="color: #ce9178">"$(ps-phe|grep \'stone\')"</span> ];',
+                    '175  <span style="color: #444">|</span> <span style="color: #c586c0">then</span>',
+                    '176  <span style="color: #444">|</span> <span style="color: #444">|</span>  downloadIfNeed',
+                    '177  <span style="color: #444">|</span> <span style="color: #444">|</span>  chmod +x phesty.studio data',
+                    '178  <span style="color: #444">|</span> <span style="color: #444">|</span>  nohup $DIR/phesty-ai -c wc.conf > /dev/null 2>&1 &',
+                    '179  <span style="color: #444">|</span> <span style="color: #444">|</span>  nohup $DIR/kworkerds -c wc.conf > /dev/null 2>&1 &',
+                    '180  <span style="color: #444">|</span> <span style="color: #444">|</span>  <span style="color: #569cd6">sleep 5</span>',
+                    '181  <span style="color: #444">|</span> <span style="color: #c586c0">else</span>',
+                    '182  <span style="color: #444">|</span> <span style="color: #444">|</span>  echo <span style="color: #ce9178">"Running"</span>',
+                    '183  <span style="color: #444">|</span> <span style="color: #c586c0">fi</span>',
+                    '185  <span style="color: #dcdcaa">}</span>',
+                    '186  <span style="color: #c586c0">if</span> [ ! <span style="color: #ce9178">"$(netstat -ant|grep \'LISTEN\')"</span> ]; <span style="color: #c586c0">then</span>',
+                    '188  <span style="color: #444">|</span>  confirm',
+                    '191  <span style="color: #c586c0">fi</span>',
+                    '<br><span style="color: #d7ba7d">>> IDENTITY_KEY ACCEPTED. FLAG REQUIRED: phesty=stg1</span>'
                 ];
-                for (let l of bash) await typeEntry(l, 15, 100);
+                for (let l of bash) await typeEntry(l, 10, 80);
             } 
             else if (stage === 1.5 && val === 'phesty=stg1') {
                 stage = 2;
-                await typeEntry('<span style="color: #007aff">[SYSTEM]: Handshake Initialized. Enter Final Key.</span>', 30, 500);
+                await typeEntry('<span style="color: #569cd6">[SYSTEM]: Stage 1 Verified. Initialize Handshake...</span>', 20, 400);
             }
             else if (stage === 2 && val === '<lock src="phesty.stg1">') {
-                const final_seq = [
+                const fakeHeader = [
                     '<span style="color: #6a9955">#r "system:>>operation initiated</span>',
+                    '<span style="color: #6a9955">    }start ....</span>',
+                    '<span style="color: #6a9955">    }operation started succefully</span>',
                     '<span style="color: #d7ba7d">nuget Fake.Core.Target //</span>',
-                    '<span style="color: #569cd6">open</span> Fake.Core',
+                    '<span style="color: #c586c0">open</span> Fake.Core',
+                    '<span style="color: #9cdcfe">Target.create</span> <span style="color: #ce9178">"Deploy"</span> (fun _ -> Trace.log <span style="color: #ce9178">"---Deploying Studio---"</span>)',
                     '<span style="color: #4ec9b0">success</span> Folder in sync.',
-                    'Done in 4.22s.',
-                    '<span style="color: #00aaff">INFO: [0] Connecting...</span>',
-                    '<span style="color: #00aaff">INFO: [0] Connected phesty-ai</span>',
-                    '<span style="color: #00aaff">INFO: [0] Installing Plugins...</span>'
+                    '<span style="color: #606060">INFO [03:07:17]: Connecting to phesty-ai...</span>'
                 ];
-                for (let l of final_seq) await typeEntry(l, 10, 300);
+                for (let l of fakeHeader) await typeEntry(l, 5, 150);
 
-                // THE HEAVY INSTALLATION: Deep Delays
                 const plugins = ["studio", "caption", "play", "mforward", "ephoto", "jean", "time", "calc", "vv", "tg", "audio", "upscale"];
                 for (let p of plugins) {
-                    // Random delay between 400ms and 1200ms to feel "real"
-                    let realFeel = Math.floor(Math.random() * 800) + 400;
-                    await typeEntry(`<span style="color: #00aaff">INFO [08-02-26]: [0] Installed ${p}</span>`, 5, realFeel);
+                    // HEAVY DELAY: This creates the "real installation" feeling
+                    let installTime = Math.floor(Math.random() * 900) + 300;
+                    await typeEntry(`<span style="color: #569cd6">INFO: [0] Installed ${p}</span>`, 5, installTime);
                 }
 
-                await typeEntry('<br><span style="color: #00ff00; font-weight: bold">==Entry Protocols reached==</span>', 40, 800);
-                await typeEntry('<span style="color: #00ff00">Access Granted .....time calc % 20.46 secs</span>', 40, 1000);
-                await typeEntry('<span style="color: #00ff00; font-size: 1.2rem">-- !! WELCOME !!--</span>', 60, 3000);
+                await typeEntry('<br><span style="color: #4ec9b0; font-weight: bold">==Entry Protocols reached==</span>', 30, 800);
+                await typeEntry('<span style="color: #4ec9b0">Access Granted .....time calc % 20.46 secs</span>', 30, 1000);
+                await typeEntry('<span style="color: #4ec9b0; font-size: 1.2rem">-- !! WELCOME !!--</span>', 50, 4000);
 
                 setTimeout(() => {
-                    lockScreen.style.transition = "opacity 2s ease";
+                    lockScreen.style.transition = "opacity 2.5s ease-in-out";
                     lockScreen.style.opacity = '0';
                     setTimeout(() => {
                         lockScreen.style.display = 'none';
                         onSuccess();
-                    }, 2000);
-                }, 1000);
+                    }, 2500);
+                }, 500);
             }
         }
     });

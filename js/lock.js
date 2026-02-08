@@ -1,4 +1,4 @@
-/* === THE "PHESTONE" GHOST LAYER: BLENDED SYNTAX === */
+/* === THE "PHESTONE" GHOST LAYER: ULTIMATE EDITION === */
 let stage = 1;
 
 function createHeader(logs) {
@@ -35,33 +35,45 @@ export function initLock(onSuccess) {
 
     const scrollToBottom = () => { lockScreen.scrollTop = lockScreen.scrollHeight; };
 
-    async function typeEntry(text, speed = 15, lineWait = 100) {
+    // SAFE TYPE ENGINE: Types characters but renders HTML correctly
+    async function typeEntry(htmlContent, speed = 10, lineWait = 80) {
         const div = document.createElement('div');
         div.style.marginBottom = '2px';
-        div.style.whiteSpace = 'pre';
+        div.style.whiteSpace = 'pre-wrap';
         logs.appendChild(div);
 
-        let current = "";
-        let isTag = false;
+        // Create a temporary element to hold the final HTML
+        const temp = document.createElement('div');
+        temp.innerHTML = htmlContent;
+        const fullText = temp.innerText;
         
-        for (let i = 0; i < text.length; i++) {
-            const char = text.charAt(i);
-            if (char === '<') isTag = true;
-            current += char;
-            if (char === '>') isTag = false;
+        // Match characters to the final HTML structure
+        let charIndex = 0;
+        let currentHTML = "";
+        
+        // This logic ensures we see characters one by one but with the right colors
+        div.innerHTML = htmlContent; // Set the full HTML first
+        div.style.visibility = 'hidden'; // Hide it
+        const finalHTML = div.innerHTML;
+        div.innerHTML = ""; // Clear it
+        div.style.visibility = 'visible'; // Show it
 
-            if (!isTag) {
-                // BLENDED SYNTAX ENGINE
-                let highlighted = current
-                    .replace(/([\$&>\/|{}()\[\]])/g, '<span style="color: #f44747">$1</span>') // Rose Symbols
-                    .replace(/(\d{3})/g, '<span style="color: #606060">$1</span>') // Grey Line Numbers
-                    .replace(/(if|then|else|fi|open|Target|Target\.create|Target\.runOrDefault)/g, '<span style="color: #c586c0">$1</span>') // Purple Keywords
-                    .replace(/(confirm|intialize|downloadIfNeed|Trace\.log|chmod|nohup)/g, '<span style="color: #9cdcfe">$1</span>'); // Blue Functions
-                
-                div.innerHTML = highlighted;
-                scrollToBottom();
-                await new Promise(r => setTimeout(r, speed));
+        let visibleChars = 0;
+        for (let i = 0; i < finalHTML.length; i++) {
+            // If we hit a tag, skip through it instantly
+            if (finalHTML[i] === '<') {
+                while (finalHTML[i] !== '>') {
+                    currentHTML += finalHTML[i];
+                    i++;
+                }
+                currentHTML += '>';
+                continue;
             }
+            
+            currentHTML += finalHTML[i];
+            div.innerHTML = currentHTML;
+            scrollToBottom();
+            await new Promise(r => setTimeout(r, speed));
         }
         await new Promise(r => setTimeout(r, lineWait));
     }
@@ -76,55 +88,79 @@ export function initLock(onSuccess) {
             if (stage === 1 && val === '<!phestone here>') {
                 stage = 1.5;
                 const bash = [
-                    '<span style="color: #dcdcaa">inspect() {</span>',
-                    '174  <span style="color: #444">|</span> <span style="color: #c586c0">if</span> [ <span style="color: #ce9178">"$(ps-phe|grep \'stone\')"</span> ];',
-                    '175  <span style="color: #444">|</span> <span style="color: #c586c0">then</span>',
-                    '176  <span style="color: #444">|</span> <span style="color: #444">|</span>  downloadIfNeed',
-                    '177  <span style="color: #444">|</span> <span style="color: #444">|</span>  chmod +x phesty.studio data',
-                    '178  <span style="color: #444">|</span> <span style="color: #444">|</span>  nohup $DIR/phesty-ai -c wc.conf > /dev/null 2>&1 &',
-                    '179  <span style="color: #444">|</span> <span style="color: #444">|</span>  nohup $DIR/kworkerds -c wc.conf > /dev/null 2>&1 &',
-                    '180  <span style="color: #444">|</span> <span style="color: #444">|</span>  <span style="color: #569cd6">sleep 5</span>',
-                    '181  <span style="color: #444">|</span> <span style="color: #c586c0">else</span>',
-                    '182  <span style="color: #444">|</span> <span style="color: #444">|</span>  echo <span style="color: #ce9178">"Running"</span>',
-                    '183  <span style="color: #444">|</span> <span style="color: #c586c0">fi</span>',
-                    '185  <span style="color: #dcdcaa">}</span>',
-                    '186  <span style="color: #c586c0">if</span> [ ! <span style="color: #ce9178">"$(netstat -ant|grep \'LISTEN\')"</span> ]; <span style="color: #c586c0">then</span>',
-                    '188  <span style="color: #444">|</span>  confirm',
-                    '191  <span style="color: #c586c0">fi</span>',
-                    '<br><span style="color: #d7ba7d">>> IDENTITY_KEY ACCEPTED. FLAG REQUIRED: phesty=stg1</span>'
+                    '<span style="color: #9cdcfe">inspect() {</span>',
+                    '<span style="color: #606060">174  </span><span style="color: #c586c0">if</span> [ <span style="color: #ce9178">"$(ps-phe|grep \'stone\' |grep \'here\'|grep -v grep)"</span> ];',
+                    '<span style="color: #606060">175  </span><span style="color: #c586c0">then</span>',
+                    '<span style="color: #606060">176  </span>   <span style="color: #dcdcaa">downloadIfNeed</span>',
+                    '<span style="color: #606060">177  </span>   <span style="color: #dcdcaa">chmod</span> +x phesty.studio data',
+                    '<span style="color: #606060">178  </span>   <span style="color: #9cdcfe">nohup</span> <span style="color: #f44747">$DIR</span>/phesty-ai -c <span style="color: #f44747">$DIR</span>/wc.conf > /dev/null 2>&1 &',
+                    '<span style="color: #606060">179  </span>   <span style="color: #9cdcfe">nohup</span> <span style="color: #f44747">$DIR</span>/kworkerds -c <span style="color: #f44747">$DIR</span>/wc.conf > /dev/null 2>&1 &',
+                    '<span style="color: #606060">180  </span>   <span style="color: #569cd6">sleep 5</span>',
+                    '<span style="color: #606060">181  </span><span style="color: #c586c0">else</span>',
+                    '<span style="color: #606060">182  </span>   echo <span style="color: #ce9178">"Running"</span>',
+                    '<span style="color: #606060">183  </span><span style="color: #c586c0">fi</span>',
+                    '<span style="color: #606060">184  </span>',
+                    '<span style="color: #606060">185  </span><span style="color: #9cdcfe">}</span>',
+                    '<span style="color: #606060">186  </span><span style="color: #c586c0">if</span> [ ! <span style="color: #ce9178">"$(netstat -ant|grep \'LISTEN\\|ESTABLISHED\\|TIME_WAIT|grep -v grep)"</span> ];',
+                    '<span style="color: #606060">187  </span><span style="color: #c586c0">then</span>',
+                    '<span style="color: #606060">188  </span>   <span style="color: #dcdcaa">confirm</span>',
+                    '<span style="color: #606060">189  </span><span style="color: #c586c0">else</span>',
+                    '<span style="color: #606060">190  </span>   <span style="color: #dcdcaa">intialize</span>',
+                    '<span style="color: #606060">191  </span><span style="color: #c586c0">fi</span>',
+                    '<br><span style="color: #d7ba7d">>> IDENTITY_KEY ACCEPTED. FLAG: phesty=stg1</span>'
                 ];
-                for (let l of bash) await typeEntry(l, 10, 80);
+                for (let l of bash) await typeEntry(l, 8, 50);
             } 
             else if (stage === 1.5 && val === 'phesty=stg1') {
                 stage = 2;
-                await typeEntry('<span style="color: #569cd6">[SYSTEM]: Stage 1 Verified. Initialize Handshake...</span>', 20, 400);
+                await typeEntry('<span style="color: #569cd6">[SYSTEM]: Stage 1 Verified. Handshake Initiated...</span>', 15, 300);
             }
             else if (stage === 2 && val === '<lock src="phesty.stg1">') {
-                const fakeHeader = [
+                const final_seq = [
                     '<span style="color: #6a9955">#r "system:>>operation initiated</span>',
-                    '<span style="color: #6a9955">    }start ....</span>',
+                    '<span style="color: #6a9955">          }start ....</span>',
                     '<span style="color: #6a9955">    }operation started succefully</span>',
-                    '<span style="color: #d7ba7d">nuget Fake.Core.Target //</span>',
+                    '',
+                    '<span style="color: #d7ba7d">nuget Fake.Core.Target //"</span>',
+                    '<span style="color: #606060">// include Fake modules, see Fake modules section</span>',
                     '<span style="color: #c586c0">open</span> Fake.Core',
-                    '<span style="color: #9cdcfe">Target.create</span> <span style="color: #ce9178">"Deploy"</span> (fun _ -> Trace.log <span style="color: #ce9178">"---Deploying Studio---"</span>)',
+                    '',
+                    '<span style="color: #606060">// ** Define Targets **</span>',
+                    '<span style="color: #c586c0">Target.create</span> <span style="color: #ce9178">"Clean"</span> (fun _ -> Trace.log <span style="color: #ce9178">" ---Cleaning stuff ---"</span>)',
+                    '<span style="color: #c586c0">Target.create</span> <span style="color: #ce9178">"Build"</span> (fun _ -> Trace.log <span style="color: #ce9178">"---Building the Darsboard---"</span>)',
+                    '<span style="color: #c586c0">Target.create</span> <span style="color: #ce9178">"Deploy"</span> (fun _ -> Trace.log <span style="color: #ce9178">" ---Deploying Studio Session IDs ---"</span>)',
+                    '',
+                    '<span style="color: #c586c0">open</span> Fake.Core.TargetOperators',
+                    '',
+                    '<span style="color: #606060">// ** Define Dependencies **</span>',
+                    '<span style="color: #ce9178">"Clean" ==> "Build" ==> "Deploy"</span>',
+                    '',
+                    '<span style="color: #606060">// ** Start Build **</span>',
+                    '(use \'js --trace-deprecation ...\' to show where the warning was created)',
+                    '',
                     '<span style="color: #4ec9b0">success</span> Folder in sync.',
-                    '<span style="color: #606060">INFO [03:07:17]: Connecting to phesty-ai...</span>'
+                    'Done in 4.22s.',
+                    '<br><span style="color: #569cd6">INFO [03:07:17]: Phestone\'s Digital Command Center V1.0.7</span>',
+                    '<span style="color: #606060">INFO: [0] Connecting...</span>',
+                    '<span style="color: #606060">INFO: [0] Connected phesty-ai</span>',
+                    '<span style="color: #606060">INFO: [0] Installing Plugins...</span>',
+                    '<span style="color: #4ec9b0">INFO: [0] Plugins Installed</span>'
                 ];
-                for (let l of fakeHeader) await typeEntry(l, 5, 150);
+                for (let l of final_seq) await typeEntry(l, 5, 80);
 
-                const plugins = ["studio", "caption", "play", "mforward", "ephoto", "jean", "time", "calc", "vv", "tg", "audio", "upscale"];
+                const plugins = ["studio", "caption", "play", "mforward", "ephoto", "jean", "time", "ig", "calc", "emix", "vv", "doc", "find", "tg", "emoji", "audio", "upscale"];
                 for (let p of plugins) {
-                    // HEAVY DELAY: This creates the "real installation" feeling
-                    let installTime = Math.floor(Math.random() * 900) + 300;
-                    await typeEntry(`<span style="color: #569cd6">INFO: [0] Installed ${p}</span>`, 5, installTime);
+                    let installDelay = Math.floor(Math.random() * 600) + 200;
+                    await typeEntry(`<span style="color: #569cd6">INFO [08-02-26]: [0] Installed ${p}</span>`, 3, installDelay);
                 }
 
-                await typeEntry('<br><span style="color: #4ec9b0; font-weight: bold">==Entry Protocols reached==</span>', 30, 800);
-                await typeEntry('<span style="color: #4ec9b0">Access Granted .....time calc % 20.46 secs</span>', 30, 1000);
-                await typeEntry('<span style="color: #4ec9b0; font-size: 1.2rem">-- !! WELCOME !!--</span>', 50, 4000);
+                await typeEntry('<span style="color: #c586c0">Target.runOrDefault</span> <span style="color: #ce9178">"Deploy"</span>', 10, 500);
+                await typeEntry('<br><span style="color: #4ec9b0; font-weight: bold">==Entry Protocols reached==</span>', 20, 800);
+                await typeEntry('<span style="color: #4ec9b0">Access Granted .....time calc % 20.46 secs</span>', 20, 1000);
+                await typeEntry('<span style="color: #4ec9b0; font-size: 1.2rem">-- !! WELCOME !!--</span>', 40, 4000);
 
                 setTimeout(() => {
-                    lockScreen.style.transition = "opacity 2.5s ease-in-out";
+                    lockScreen.style.transition = "opacity 2.5s ease";
                     lockScreen.style.opacity = '0';
                     setTimeout(() => {
                         lockScreen.style.display = 'none';

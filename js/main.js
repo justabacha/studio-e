@@ -20,3 +20,11 @@ window.addEventListener('DOMContentLoaded', () => {
         window.toggleTimer = toggleTimer;
     });
 }); // <--- This line is likely what's missing or broken!
+// Place Service Worker registration here - Outside the main block
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('%c [GHOST-PWA]: Service Worker Active', 'color: #4ec9b0'))
+      .catch(err => console.log('PWA registration failed: ', err));
+  });
+}

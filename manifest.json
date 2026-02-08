@@ -1,6 +1,6 @@
 {
   "short_name": "PDCC",
-  "name": "P'Center", //this is the actaull name
+  "name": "P'Center", 
   "description": "Phestone Mission Dashboard",
   "start_url": "./index.html",
   "display": "standalone",

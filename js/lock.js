@@ -1,113 +1,115 @@
 /* === THE "SLOW BURN" BOOT SEQUENCE === */
 let stage = 1;
 
+// --- 1. DEFINE ALL HELPER FUNCTIONS FIRST ---
+
+function createHeader(logs) {
+    const h = document.createElement('div');
+    h.id = 'terminal-header';
+    h.style.fontFamily = 'monospace';
+    h.style.fontSize = '12px';
+    h.style.color = '#00ff00';
+    logs.before(h);
+    return h;
+}
+
+function renderHeader() {
+    const header = document.getElementById('terminal-header');
+    if (!header) return;
+    const cpu1 = (Math.random() * 5 + 3).toFixed(1);
+    const cpu2 = (Math.random() * 10 + 9).toFixed(1);
+    header.innerHTML = `
+[1] [|||                     ${cpu1}%]   Tasks: 35, 1109 thr; 1 running
+[2] [||||||                  ${cpu2}%]   Load average: 4.33 4.43 4.56
+Mem [||||||||||||||||| 1.06G/1.87G]   Uptime: 1 day, 22:59:18
+------------------------------------------------------------`;
+}
+
+// --- 2. THE MAIN EXPORT ---
+
 export function initLock(onSuccess) {
     const input = document.getElementById('terminal-input');
     const logs = document.getElementById('terminal-logs');
     const lockScreen = document.getElementById('terminal-lock');
 
+    if (!input || !logs) return;
+
+    // Initialize Header
+    createHeader(logs);
     renderHeader();
     setInterval(renderHeader, 2000);
 
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const val = input.value.trim();
-            input.value = "";
-            processSequence(val);
-        }
-    });
+    // Auto-scroll function
+    const scrollToBottom = () => {
+        lockScreen.scrollTop = lockScreen.scrollHeight;
+    };
 
-    function scrollToBottom() {
-        // Targets the container to ensure the newest line is always visible
-        lockScreen.scrollTo({ top: lockScreen.scrollHeight, behavior: 'smooth' });
-    }
-
-    async function typeCharByChar(text, color = "#ccc", speed = 20) {
+    // Realistic Typing Engine
+    async function typeCharByChar(text, color = "#ccc", speed = 30) {
         const div = document.createElement('div');
         div.style.color = color;
         div.style.marginBottom = '2px';
-        div.style.fontFamily = 'monospace';
         logs.appendChild(div);
 
-        // This loops through every letter for that "live typing" vibe
         for (let i = 0; i < text.length; i++) {
             div.innerHTML += text.charAt(i);
-            scrollToBottom();
+            scrollToBottom(); // Pin to bottom after every letter
             await new Promise(r => setTimeout(r, speed));
         }
     }
 
-    async function processSequence(cmd) {
-        const userLine = document.createElement('div');
-        userLine.innerHTML = `<span style="color: #555">Phestone@Mission:~$</span> ${cmd}`;
-        logs.appendChild(userLine);
-        scrollToBottom();
-
-        if (stage === 1 && cmd === '<!phestone here>') {
-            stage = 1.5;
-            const lines = [
-                'inspect() {',
-                '174  if [ "$(ps-phe|grep \'stone\' |grep \'here\'|grep -v grep)" ];',
-                '175  then',
-                '176      downloadIfNeed',
-                '177      chmod +x phesty.studio data',
-                '178      nohup $DIR/phesty-ai -c SDIR/wc.conf > /dev/null 2>&1 &',
-                '179      nohup $DIR/kworkerds -c $DIR/wc.conf > /dev/null 2>&1 &',
-                '180      sleep 5',
-                '181  else',
-                '182      echo "Running"',
-                '183  fi',
-                '}',
-                '186  if [ ! "$(netstat -ant|grep \'LISTEN\\|ESTABLISHED\\|TIME_WAIT|grep -v grep)" ];',
-                '187  then confirm',
-                '188  else initialize',
-                '189  fi',
-                '>> WAITING FOR STAGE FLAG: phesty=stg1...'
-            ];
-            for (let line of lines) {
-                // Slower typing for the code logic
-                await typeCharByChar(line, "#569cd6", 15); 
-                await new Promise(r => setTimeout(r, 100)); // slight pause between lines
-            }
-        } 
-        else if (stage === 1.5 && cmd === 'phesty=stg1') {
-            stage = 2;
-            await typeCharByChar("[SYSTEM]: Stage 1 Verified. Awaiting Final Handshake...", "#007aff", 30);
-            await typeCharByChar("Enter: <lock src=\"phesty.stg1\">", "#ff9d00", 30);
-        }
-        else if (stage === 2 && cmd === '<lock src="phesty.stg1">') {
-            const fakeCore = [
-                '#r "system:>>operation initiated',
-                '          }start ....',
-                '    }operation started succefully',
-                'nuget Fake.Core.Target //',
-                'open Fake.Core',
-                'Target.create "Build" (fun _ -> Trace.log "---Building Dashboard---")',
-                'Target.runOrDefault "Deploy"',
-                'success Folder in sync.',
-                'Done in 4.22s.',
-                'INFO [03:07:17]: Phestone Digital Command Center V1.0.7',
-                'INFO [03:07:31]: [0] Installed studio',
-                'INFO [03:07:31]: [0] Installed caption',
-                'INFO [03:07:31]: [0] Installed play',
-                '==Entry Protocols reached==',
-                'Access Granted .....time calc % 20.46 secs',
-                '-- !! WELCOME !!--'
-            ];
-            for (let line of fakeCore) {
-                // Deployment logs go slightly faster line-by-line
-                await typeCharByChar(line, "#6a9955", 10);
-            }
+    input.addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') {
+            const cmd = input.value.trim();
+            input.value = "";
             
-            setTimeout(() => {
-                lockScreen.style.opacity = '0';
-                setTimeout(() => {
-                    lockScreen.style.display = 'none';
-                    onSuccess();
-                }, 500);
-            }, 2000);
-        }
-    }
+            // Log user input
+            const userLine = document.createElement('div');
+            userLine.innerHTML = `<span style="color: #555">Phestone@Mission:~$</span> ${cmd}`;
+            logs.appendChild(userLine);
+            scrollToBottom();
 
-    // ... (renderHeader and createHeader stay the same as before)
+            if (stage === 1 && cmd === '<!phestone here>') {
+                stage = 1.5;
+                const bashLogic = [
+                    'inspect() {',
+                    '174  if [ "$(ps-phe|grep \'stone\' |grep \'here\')" ];',
+                    '175  then downloadIfNeed',
+                    '177  chmod +x phesty.studio data',
+                    '178  nohup $DIR/phesty-ai -c SDIR/wc.conf > /dev/null &',
+                    '180  sleep 5',
+                    '183  fi',
+                    '}',
+                    '>> FLAG REQUIRED: phesty=stg1'
+                ];
+                for (const line of bashLogic) {
+                    await typeCharByChar(line, "#569cd6", 25);
+                }
+            } 
+            else if (stage === 1.5 && cmd === 'phesty=stg1') {
+                stage = 2;
+                await typeCharByChar("[SYSTEM]: Stage 1 Verified. Awaiting Handshake...", "#007aff", 40);
+            }
+            else if (stage === 2 && cmd === '<lock src="phesty.stg1">') {
+                const deployLogs = [
+                    '#r "system:>>operation initiated',
+                    'success Folder in sync.',
+                    'INFO: [0] Installed studio',
+                    'INFO: [0] Installed play',
+                    '==Entry Protocols reached==',
+                    '-- !! WELCOME !!--'
+                ];
+                for (const line of deployLogs) {
+                    await typeCharByChar(line, "#6a9955", 15);
+                }
+                setTimeout(() => {
+                    lockScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        lockScreen.style.display = 'none';
+                        onSuccess();
+                    }, 500);
+                }, 1000);
+            }
+        }
+    });
 }

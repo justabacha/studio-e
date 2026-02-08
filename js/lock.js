@@ -15,12 +15,23 @@ function createHeader(logs) {
 function renderHeader() {
     const header = document.getElementById('terminal-header');
     if (!header) return;
+    
     const cpu1 = (Math.random() * 2 + 1).toFixed(1);
-    const cpu2 = (Math.random() * 5 + 4).toFixed(1);
+    const hex = Math.random().toString(16).slice(2, 8).toUpperCase();
+    const load = (Math.random() * 0.5 + 0.1).toFixed(2);
+
     header.innerHTML = `
-<span style="color: #4ec9b0">1 [||</span><span style="color: #333">                       ${cpu1}%]</span>   Tasks: 42, 1 running
-<span style="color: #4ec9b0">2 [|||||</span><span style="color: #333">                    ${cpu2}%]</span>   Load average: 0.12 0.25 0.33
-<span style="color: #569cd6">Mem[|||||||||          840M/1.87G]</span>   Uptime: 04:20:55
+<div style="display: flex; justify-content: space-between;">
+    <span style="color: #4ec9b0">CPU1 [|| ${cpu1}%]</span>
+    <span style="color: #f44747">GHOST-ENC: 0x${hex}</span>
+</div>
+<div style="display: flex; justify-content: space-between;">
+    <span style="color: #569cd6">MEM [||||||||| 840M/1.87G]</span>
+    <span style="color: #d7ba7d">UPLINK: ACTIVE</span>
+</div>
+<div style="color: #606060; font-size: 10px; margin-top: 5px;">
+    LOAD: ${load}  |  PATH: /root/phesty/studio/node_01  |  SYNC: OK
+</div>
 <hr style="border: 0; border-top: 1px solid #222; margin: 10px 0;">`;
 }
 

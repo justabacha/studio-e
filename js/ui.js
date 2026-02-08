@@ -97,5 +97,5 @@ export function updateUI() {
 }
 
 /* === EXPOSE GLOBALS === */
-window.toggleView = toggleView;
 window.initUI = initUI;
+window.toggleView = toggleView;

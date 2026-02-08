@@ -89,3 +89,4 @@ export function initMagic() {
 
 // Global Bridge
 window.handleMagic = handleMagic;
+window.initMagic = initMagic;

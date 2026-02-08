@@ -1,4 +1,4 @@
-/* === THE "PHESTONE" INFINITE QUOTE ENGINE (STABLE PROXY) === */
+/* === THE "PHESTONE" INFINITE QUOTE ENGINE (FRESH HIT MODE) === */
 
 const EMOJIS = ["🧊","🔥","🍃","⚒️","🧠","🫧","🚀"];
 
@@ -13,17 +13,15 @@ export async function initQuotes() {
     const quoteTile = document.getElementById('quote-card');
     const textElem = document.getElementById('q-text');
 
-    // 1. Date Display Logic
     if (qDateElem) {
         const d = now.getDate();
         const s = (d % 10 === 1 && d !== 11) ? 'st' : (d % 10 === 2 && d !== 12) ? 'nd' : (d % 10 === 3 && d !== 13) ? 'rd' : 'th';
         qDateElem.innerText = `📌 ${now.toLocaleString('default', { month: 'long' })} ${d}${s}, ${now.toLocaleString('default', { weekday: 'long' })}`;
     }
 
-    // 2. LOADING STATE (So you know it's trying)
-    if (textElem) textElem.innerText = "Connecting to Ghost Feed...";
+    if (textElem) textElem.innerText = "Bypassing Cache...";
 
-    // 3. FETCH & ROTATE (Currently set to change on every refresh for testing)
+    // Force a fresh fetch on every refresh
     await fetchNewQuote(now.toDateString(), quoteTile);
 }
 
@@ -32,9 +30,10 @@ async function fetchNewQuote(today, quoteTile) {
     const emojiElem = document.getElementById('q-emoji');
 
     try {
-        // Using ZenQuotes via AllOrigins Proxy to fix your DNS/CORS errors
+        // ADDING CACHE BUSTER: ?t=[timestamp] ensures the proxy gives us a fresh quote
+        const cacheBuster = `&t=${Date.now()}`;
         const targetUrl = encodeURIComponent('https://zenquotes.io/api/random');
-        const response = await fetch(`https://api.allorigins.win/get?url=${targetUrl}`);
+        const response = await fetch(`https://api.allorigins.win/get?url=${targetUrl}${cacheBuster}`);
         
         if (!response.ok) throw new Error("Network Response Fail");
 
@@ -45,25 +44,22 @@ async function fetchNewQuote(today, quoteTile) {
         const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
         const randomBg = quoteBackgrounds[Math.floor(Math.random() * quoteBackgrounds.length)];
 
-        // Update Storage
         localStorage.setItem('quote_date', today);
         localStorage.setItem('quote_text', finalQuote);
         localStorage.setItem('quote_emoji', emoji);
         localStorage.setItem('quote_bg', randomBg);
 
-        // Render
         if (textElem) textElem.innerText = finalQuote;
         if (emojiElem) emojiElem.innerText = emoji;
         if (quoteTile) {
             quoteTile.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${randomBg}') center/cover no-repeat`;
         }
 
-        console.log(`%c [GHOST-QUOTE]: SUCCESS -> ${finalQuote}`, "color: #4ec9b0; font-weight: bold;");
+        console.log(`%c [GHOST-QUOTE]: NEW FETCH -> ${finalQuote}`, "color: #4ec9b0; font-weight: bold;");
 
     } catch (error) {
-        // CLEAR FAILURE SIGNAL
         if (textElem) {
-            textElem.innerHTML = `<span style="color: #f44747;">GHOST-SYS: Feed Offline</span><br><small style="font-size:10px;">${error.message}</small>`;
+            textElem.innerHTML = `<span style="color: #f44747;">GHOST-SYS: Feed Offline</span>`;
         }
         console.error("GHOST-LAYER: Fetch failed.", error);
     }

@@ -46,7 +46,6 @@ async function callGroq(promptText) {
 }  
 
 /* === CORE FUNCTIONS === */
-// Note: I removed the 'export' keyword from here to avoid the duplicate error
 function handleMagic() {  
     const input = document.getElementById('magic-input');  
     const val = input.value.trim();  
@@ -87,7 +86,10 @@ function initMagic() {
     }  
 }
 
-// Global Bridge & Single Export Point
+/* === THE GLOBAL BRIDGE === */
+// Single point of export to prevent syntax errors
 export { handleMagic, initMagic };
+
+// Expose to window so HTML onclick works
 window.handleMagic = handleMagic;
 window.initMagic = initMagic;

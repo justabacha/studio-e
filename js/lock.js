@@ -3,34 +3,38 @@ export function initLock(onSuccess) {
     const logs = document.getElementById('terminal-logs');
     const lockScreen = document.getElementById('terminal-lock');
 
-    // Initial message
-    logs.innerHTML = "SYSTEM BOOT... v2.0.26\nUNAUTHORIZED ACCESS PROHIBITED.\nTYPE 'help' FOR COMMANDS.\n\n";
+    if (!input) {
+        console.error("Terminal Input not found in HTML! ❌");
+        return;
+    }
+
+    console.log("Terminal Lock Initialized... Waiting for input. ⌨️");
 
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
-            const command = input.value.trim().toLowerCase();
+            const command = input.value.trim(); // Removed toLowerCase for strict command
+            console.log("Command received:", command); // Check if this shows in F12 console
+            
             input.value = "";
+            
+            // Log the command to the screen
+            logs.innerHTML += `<span style="color: #555">Phestone@Mission:~$ ${command}</span>\n`;
+            
             processCommand(command);
         }
     });
 
     function processCommand(cmd) {
-        if (cmd === 'help') {
-            logs.innerHTML += "> Available: help, clear, status, phesty --access\n";
-        } else if (cmd === 'clear') {
-            logs.innerHTML = "";
-        } else if (cmd === 'status') {
-            logs.innerHTML += "> System: Ghost Layer v2 | Location: Eldoret | Status: Waiting for Phestone...\n";
-        } else if (cmd === 'phesty --access' || cmd === 'access') {
-            logs.innerHTML += "<span class='success-msg'>> ACCESS GRANTED. INITIALIZING DASHBOARD...</span>\n";
+        if (cmd === 'phesty --access' || cmd === 'access') {
+            logs.innerHTML += "<span style='color: #007aff'>> ACCESS GRANTED. INITIALIZING...</span>\n";
             setTimeout(() => {
                 lockScreen.style.display = "none";
-                onSuccess(); // This triggers the main app
-            }, 1000);
+                onSuccess(); 
+            }, 800);
+        } else if (cmd === 'help') {
+            logs.innerHTML += "> Available: help, clear, access\n";
         } else {
-            logs.innerHTML += `<span class='error-msg'>> Command '${cmd}' not recognized. Peak.</span>\n`;
+            logs.innerHTML += `<span style='color: #ff2d55'>> '${cmd}' not recognized. Peak.</span>\n`;
         }
-        // Auto-scroll
-        window.scrollTo(0, document.body.scrollHeight);
     }
 }

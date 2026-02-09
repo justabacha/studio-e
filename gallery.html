@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDCC | Mission Archive</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="gallery.css">
+</head>
+<body class="ghost-layer">
+    <div id="pdcc-header">
+        <div class="logo">|Just•Abacha😎|</div>
+        <button onclick="location.href='index.html'" class="back-btn">← RETURN TO COCKPIT</button>
+    </div>
+
+    <main class="archive-container">
+        <section id="camera-module" class="glass-tile">
+            <video id="viewfinder" autoplay playsinline></video>
+            <canvas id="snapshot-buffer" style="display:none;"></canvas>
+            <div class="controls">
+                <button id="start-cam" class="vibe-btn green">BOOT CAMERA</button>
+                <button id="shutter" class="vibe-btn blue" style="display:none;">CAPTURE SCENE</button>
+            </div>
+        </section>
+
+        <section id="photo-grid" class="masonry-layout">
+            <div class="sync-status">Scanning for new data...</div>
+        </section>
+    </main>
+
+    <div id="lightbox" class="hidden" onclick="this.classList.add('hidden')">
+        <img id="lightbox-img" src="" alt="Full View">
+        <button id="delete-asset" class="trash-icon">🗑️</button>
+    </div>
+
+    <script type="module">
+        import { initUI } from './ui.js';
+        import { initGallery } from './gallery_engine.js';
+        
+        // Keep the PDCC vibe consistent
+        initUI();
+        // Launch the Archive logic
+        initGallery();
+    </script>
+</body>
+</html>

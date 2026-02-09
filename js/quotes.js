@@ -2,8 +2,14 @@
 
 const EMOJIS = ["🧊","🔥","🍃","⚒️","🧠","🫧","🚀"];
 
-// Replace your quoteBackgrounds array with this to get a new random HD nature image every day
-const bg = `https://images.unsplash.com/photo-${Math.random()}?auto=format&fit=crop&q=80&w=1000&nature,dark`;
+// Keep your high-res nature links here for stability
+const quoteBackgrounds = [
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=1000",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=1000"
+];
 
 const JSON_PATH = "./quotes_feed.json";
 
@@ -41,16 +47,16 @@ async function dailySync(today, quoteTile) {
         if (!response.ok) throw new Error("Sync Interrupted");
         const quotesList = await response.json();
 
-        // 3. Never Repeat Logic (Excluding used quotes)
+        // 3. Never Repeat Logic
         let used = JSON.parse(localStorage.getItem('used_quotes') || "[]");
         let available = quotesList.filter(q => !used.includes(q));
 
-        // Reset cycle if all quotes have been shown
         if (available.length === 0) {
             used = [];
             available = quotesList;
         }
 
+        // Random Selection happens here once every 24hrs
         const finalQuote = available[Math.floor(Math.random() * available.length)];
         const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
         const bg = quoteBackgrounds[Math.floor(Math.random() * quoteBackgrounds.length)];
@@ -58,7 +64,7 @@ async function dailySync(today, quoteTile) {
         // Update Used List
         used.push(finalQuote);
         
-        // Save everything for the next 24 hours
+        // Save everything to the Vault
         localStorage.setItem('quote_date', today);
         localStorage.setItem('quote_text', finalQuote);
         localStorage.setItem('quote_emoji', emoji);

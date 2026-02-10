@@ -25,20 +25,28 @@ export function initGallery() {
 // 2. THE LIVE VIEW (Camera Capture)
 async function setupCamera() {
     const video = document.getElementById('viewfinder');
-    const shutter = document.getElementById('shutter');
     const startBtn = document.getElementById('start-cam');
+    const shutter = document.getElementById('shutter');
 
-    startBtn.onclick = async () => {
+    if (!startBtn) return;
+
+    startBtn.addEventListener('click', async () => {
+        console.log("Attempting to wake the lens...");
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "environment" }, 
+                audio: false 
+            });
             video.srcObject = stream;
+            video.play(); // Force play
             startBtn.style.display = 'none';
             shutter.style.display = 'inline-block';
         } catch (err) {
-            console.error("Camera Access Denied:", err);
+            alert("Camera Error: Check if you granted permissions in the browser address bar.");
+            console.error(err);
         }
-    };
-
+    });
+}
     shutter.onclick = () => {
         const canvas = document.getElementById('snapshot-buffer');
         canvas.width = video.videoWidth;

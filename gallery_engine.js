@@ -3,7 +3,7 @@
 let db;
 const DB_NAME = "PDCC_Archive";
 
-// 1. BOOT LOCAL DATABASE (IndexedDB)
+// 1. BOOT THE VAULT (IndexedDB)
 export function initGallery() {
     const request = indexedDB.open(DB_NAME, 1);
     
@@ -14,25 +14,29 @@ export function initGallery() {
 
     request.onsuccess = (e) => {
         db = e.target.result;
-        console.log("Archive Local DB: ONLINE 🟢");
+        console.log("Archive Vault: ONLINE 🟢");
         loadLocalGallery();
         setupCamera();
-        // Start the 30s Ghost Sync
+        // The 30s "Silent Sync" loop
         setInterval(silentSync, 30000);
     };
 }
 
-// 2. CAMERA LOGIC
+// 2. THE LIVE VIEW (Camera Capture)
 async function setupCamera() {
     const video = document.getElementById('viewfinder');
     const shutter = document.getElementById('shutter');
     const startBtn = document.getElementById('start-cam');
 
     startBtn.onclick = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        startBtn.style.display = 'none';
-        shutter.style.display = 'inline-block';
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            video.srcObject = stream;
+            startBtn.style.display = 'none';
+            shutter.style.display = 'inline-block';
+        } catch (err) {
+            console.error("Camera Access Denied:", err);
+        }
     };
 
     shutter.onclick = () => {
@@ -41,16 +45,16 @@ async function setupCamera() {
         canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
         
-        const imageData = canvas.toDataURL('image/jpeg');
-        saveToLocal(imageData); // INSTANT FLEX
+        const imageData = canvas.toDataURL('image/jpeg', 0.8);
+        saveAndFlex(imageData); // INSTANT VIEW
     };
 }
 
-// 3. THE "SNAP" SAVE (Local Only for now)
-function saveToLocal(data) {
+// 3. THE INSTANT FLEX
+function saveAndFlex(data) {
     const transaction = db.transaction(["photos"], "readwrite");
     transaction.objectStore("photos").add({ data, timestamp: Date.now() });
-    loadLocalGallery(); // Refresh UI instantly
+    loadLocalGallery(); // Refresh UI immediately for that iPhone feel
 }
 
 function loadLocalGallery() {
@@ -59,7 +63,7 @@ function loadLocalGallery() {
     
     const transaction = db.transaction(["photos"], "readonly");
     const store = transaction.objectStore("photos");
-    grid.innerHTML = ''; // Clear for fresh load
+    grid.innerHTML = ''; 
 
     store.openCursor(null, "prev").onsuccess = (e) => {
         const cursor = e.target.result;
@@ -73,10 +77,10 @@ function loadLocalGallery() {
     };
 }
 
-// 4. SILENT SYNC (The Ghost Loop)
+// 4. THE SILENT SYNC (The Ghost Logic)
 function silentSync() {
-    console.log("Ghost Sync: Checking GitHub for updates...");
-    // We will add the GitHub API fetch here once the server is stable!
+    console.log("Ghost Sync: Scanning Cloud for new Flexes...");
+    // GitHub API Sync logic goes here next!
 }
 
 window.viewFull = (src) => {
